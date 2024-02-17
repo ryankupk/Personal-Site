@@ -1,15 +1,23 @@
+<script setup>
+import ServiceItem from '../components/ServiceItem.vue'
+</script>
 <template>
   <div class="services">
-    <h1>This is a services page</h1>
+    <!-- <h2>Public</h2> -->
+    <ServiceItem name="Ollama" url="https://ollama.ryankupka.dev/" extension="png"/>
+    <ServiceItem name="Jellyfin" url="https://jelly.ryankupka.dev/" extension="png"/>
+    <ServiceItem name="Navidrome" url="https://navi.ryankupka.dev/" extension="png"/>
+    <ServiceItem name="Jellyseerr" url="https://reqs.ryankupka.dev/" extension="webp"/>
   </div>
 </template>
 
-<style>
+<style scoped>
 @media (min-width: 1024px) {
   .services {
-    min-height: 100vh;
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
+    /* align-items: center; */
+    justify-content: center;
   }
 }
 </style>
