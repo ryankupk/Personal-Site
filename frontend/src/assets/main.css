@@ -1,5 +1,6 @@
 @import './base.css';
 
+
 #app {
   max-width: 1280px;
   margin: 0 auto;
@@ -7,8 +8,12 @@
   font-weight: normal;
 }
 
-a,
-.blue {
+a, a:visited {
+  text-decoration: none;
+  color: inherit;
+}
+
+a.blue {
   text-decoration: none;
   color: rgb(0, 63, 235);
   transition: 0.4s;
@@ -16,8 +21,8 @@ a,
 }
 
 @media (hover: hover) {
-  a:hover {
-    background-color: hsla(192, 100%, 43%, 0.2);
+  a.blue:hover {
+    background-color: hsla(207, 100%, 43%, 0.2);
   }
 }
 
