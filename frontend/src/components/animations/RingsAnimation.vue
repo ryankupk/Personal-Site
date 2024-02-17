@@ -28,8 +28,8 @@ $lagdelay: 1.25;
   align-items: center;
   top: 50%;
   left: 50%;
-  margin-top: -($box-size / 2);
-  margin-left: -($box-size / 2);
+  margin-top: calc($box-size / 2 * -1);
+  margin-left: calc($box-size / 2 * -1);
   z-index: -1;
   .ring {
     position: absolute;
@@ -37,7 +37,7 @@ $lagdelay: 1.25;
 }
 
 @for $i from 1 through $rings {
-  $perc: (($rings - $i) / $rings);
+  $perc: calc(($rings - $i) / $rings);
 
   @keyframes el-animate-#{$i} {
     0% {
@@ -61,10 +61,10 @@ $lagdelay: 1.25;
   .ring.el-#{$i} {
     $size: $box-size * $perc;
 
-    border: 2px solid black;
+    border: 3px solid black;
     border-color: rgb(255 * $perc, 255 * $perc, 255 * $perc);
-    left: ($box-size / 2) - ($size / 2);
-    top: ($box-size / 2) - ($size / 2);
+    left: calc($box-size / 2) - calc($size / 2);
+    top: calc($box-size / 2) - calc($size / 2);
     width: $size;
     height: $size;
     border-radius: ($size * 0.35);
