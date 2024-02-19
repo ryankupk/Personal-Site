@@ -6,6 +6,7 @@ import requests
 import json
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 import urllib.parse
@@ -19,6 +20,19 @@ MONGO_SOCKET = os.getenv("MONGO_SOCKET")
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
 app = FastAPI()
+origins = [
+    "http://localhost:5174",
+    "https://ryankupka.dev",
+    "https://www.ryankupka.dev",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 motor_details = f"mongodb://{MONGO_USERNAME}:{urllib.parse.quote(MONGO_PASSWORD)}@{MONGO_SOCKET}/contact?authSource=admin"
 client = AsyncIOMotorClient(motor_details)
