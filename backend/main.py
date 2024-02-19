@@ -1,25 +1,50 @@
 from typing import Union
 
+from dotenv import load_dotenv
+
+import requests
+import json
+
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+import urllib.parse
+from motor.motor_asyncio import AsyncIOMotorClient 
+import os
+
+load_dotenv()
+MONGO_USERNAME = os.getenv("MONGO_USERNAME")
+MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
+MONGO_SOCKET = os.getenv("MONGO_SOCKET")
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
+
 app = FastAPI()
-app.mount("/frontend", StaticFiles(directory="../frontend"), name="frontend")
 
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: Union[bool, None] = None
+motor_details = f"mongodb://{MONGO_USERNAME}:{urllib.parse.quote(MONGO_PASSWORD)}@{MONGO_SOCKET}/contact?authSource=admin"
+client = AsyncIOMotorClient(motor_details)
+db = client.contact
+contact_collection = db.contact_messages
 
-@app.get("/")
+
+class Message(BaseModel):
+    message: str
+    sender: str
+    contact_info: str
+    
+
+@app.get("/api")
 def read_root():
-    return {"hello": "world"}
+    return {"Hello": "World"}
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+@app.post("/api/contact")
+async def send_message(message: Message):
+    # Insert the message into the collection asynchronously
+    result = await contact_collection.insert_one(message.model_dump(exclude={"id"}))
 
-@app.put("/items/{item_id}")
-def update_item(item_id: int, item: Item):
-    return {"item_name": item.name, "item_id": item_id}
+    # Send the message to Discord
+    discord_message = {"content": message.model_dump_json()}
+    discord_headers = {"Content-Type": "application/json"}
+    discord_response = requests.post(DISCORD_WEBHOOK_URL, data=json.dumps(discord_message), headers=discord_headers)
+
+    # Return the inserted message with its new ID
+    return {"_id": str(result.inserted_id), **message.model_dump()}
