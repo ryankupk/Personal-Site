@@ -1,6 +1,7 @@
 <script setup>
 import ServiceItem from '../components/ServiceItem.vue'
 </script>
+
 <template>
   <div class="services">
     <!-- <h2>Public</h2> -->
