@@ -1,6 +1,10 @@
+<script setup>
+  import ProjectItem from '../components/ProjectItem.vue'
+</script>
+
 <template>
   <div class="projects">
-    <h1>This is a projects page</h1>
+    <ProjectItem />
   </div>
 </template>
 
