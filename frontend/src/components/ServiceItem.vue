@@ -28,6 +28,11 @@ const dimensions = ref('150px');
 </template>
 
 <style scoped>
+a, a:visited {
+  text-decoration: none;
+  color: inherit;
+}
+
 h1 {
     display: flex;
     justify-content: center;
