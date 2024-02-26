@@ -11,8 +11,8 @@ import ContactForm from '../components/ContactForm.vue'
 <style>
 @media (min-width: 1024px) {
   .contact {
-    display: flex;
-    align-items: center;
+    /* display: flex;
+    align-items: center; */
   }
 }
 </style>
