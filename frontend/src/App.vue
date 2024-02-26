@@ -1,19 +1,19 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import DevelopmentBanner from './components/DevelopmentBanner.vue'; // Adjust the path as necessary
+import { RouterLink, RouterView } from 'vue-router' 
+import DevelopmentBanner from './components/DevelopmentBanner.vue'; 
 </script>
 
 <template>
-  <DevelopmentBanner />
+  <DevelopmentBanner class="banner"/>
   <header>
 
-    <div class="wrapper">
+    <div class="router-wrapper">
       <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-        <RouterLink to="/projects">Projects</RouterLink>
-        <RouterLink to="/services">Services</RouterLink>
-        <RouterLink to="/contact">Contact</RouterLink>
+        <RouterLink class="blue" to="/">Home</RouterLink>
+        <RouterLink class="blue" to="/about">About</RouterLink>
+        <RouterLink class="blue" to="/projects">Projects</RouterLink>
+        <RouterLink class="blue" to="/services">Services</RouterLink>
+        <RouterLink class="blue" to="/contact">Contact</RouterLink>
       </nav>
     </div>
   </header>
@@ -21,26 +21,21 @@ import DevelopmentBanner from './components/DevelopmentBanner.vue'; // Adjust th
   <RouterView />
 </template>
 
-<!-- <script lang="js">
-import DevelopmentBanner from '@/components/DevelopmentBanner.vue'; // Adjust the path as necessary
-
-export default {
-  name: 'App',
-  components: {
-    DevelopmentBanner
-  }
-}
-</script> -->
 
 <style scoped>
+.banner {
+  
+
+}
+
 header {
   width: 100%; /* Ensure header spans the full width */
 }
 
-.wrapper {
-  width: 100%; /* Ensure wrapper spans the full width */
+.router-wrapper {
+  width: 100%; /* Ensure router-wrapper spans the full width */
   display: flex;
-  justify-content: center; /* Horizontally center the content within the wrapper */
+  justify-content: center; /* Horizontally center the content within the router-wrapper */
 }
 
 nav {
@@ -62,7 +57,7 @@ nav a:first-of-type {
 }
 
 @media (min-width: 1024px) {
-  .wrapper {
+  .router-wrapper {
     justify-content: center; /* Keep content centered */
   }
 
