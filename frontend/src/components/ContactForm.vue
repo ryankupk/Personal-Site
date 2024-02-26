@@ -1,24 +1,37 @@
 <script setup>
 
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+
 import axios from 'axios';
+
 import { useToast } from 'vue-toastification';
 
+import { Tippy } from 'vue-tippy';
+import 'tippy.js/dist/tippy.css'
+import 'tippy.js/themes/light.css'
 
 const form = ref({
   message: '',
-  sender: '',
+  sender_name: '',
   contact_info: '',
+});
+
+const isFormEmpty = computed(() => {
+  return (form.value.message === '' ||
+          form.value.sender_name === '' || 
+          form.value.contact_info === '');
 });
 
 const toast = useToast();
 
 const submitForm = async () => {
+  if (isFormEmpty.value) return; 
+
   try {
     await axios.post("/api/contact", form.value);
     toast.success('Message sent successfully!');
 
-    form.value = { message: '', sender: '', contact_info: '' }; // Reset form
+    form.value = { message: '', sender_name: '', contact_info: '' }; // Reset form
   } catch (error) {
     toast.error('Failed to send message.');
 
@@ -31,13 +44,16 @@ const submitForm = async () => {
     <div class="contact-form">
         <div class="spacer"></div>
         <label for="name">Your Name</label> 
-        <input type="text" v-model="form.sender" id="name" placeholder="">
+        <input type="text" v-model="form.sender_name" id="name" placeholder="">
         <label for="contact-information">Contact Information</label> 
         <input type="text" v-model="form.contact_info" id="contact-information" placeholder="">
         <label for="message">Message</label> 
         <textarea v-model="form.message" id="message" placeholder=""></textarea>
-        <button class="button-4" @click="submitForm" role="button">Send</button>
-
+        <tippy content="All fields are required for sending a message" placement="bottom">
+          <button class="button-4" @click="submitForm" :disabled="isFormEmpty" role="button">
+            Send
+          </button>
+        </tippy>
     </div>
 
 </template>
@@ -59,6 +75,9 @@ label {
   font-weight: bold;
 }
 
+input {
+  max-width: 120px;
+}
 textarea {
   min-height: 100px;
 }
@@ -111,7 +130,7 @@ textarea {
 }
 
 .button-4:disabled {
-  background-color: #FAFBFC;
+  background-color: #707070;
   border-color: rgba(27, 31, 35, 0.15);
   color: #959DA5;
   cursor: default;

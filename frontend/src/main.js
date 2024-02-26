@@ -7,7 +7,11 @@ import router from './router'
 import Toast, { POSITION } from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
 
-const app = createApp(App)
+import VueTippy from 'vue-tippy'
+
+const app = createApp(App);
+
+app.use(router);
 
 app.use(Toast, {
   // You can set global options here
@@ -20,6 +24,10 @@ app.use(Toast, {
   draggablePercent: 0.6,
 });
 
-app.use(router)
+app.use(VueTippy, {
+    component: 'tippy',
+    followCursor: true
+  }
+  );
 
 app.mount('#app')

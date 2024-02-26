@@ -42,7 +42,7 @@ contact_collection = db.contact_messages
 
 class Message(BaseModel):
     message: str
-    sender: str
+    sender_name: str
     contact_info: str
     
 
