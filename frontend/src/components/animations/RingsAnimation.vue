@@ -1,12 +1,12 @@
+<script>
+</script>
+
 <template>
   <!-- adapted from codepen: https://codepen.io/kryo2k/pen/xbxjGP -->
   <div class="container">
     <div v-for="n in 29" :key="n" :class="['ring', 'el-' + n]"></div>
   </div>
 </template>
-
-<script>
-</script>
 
 <style lang="scss" scoped>
 @import "bourbon";
