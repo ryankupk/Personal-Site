@@ -6,9 +6,6 @@
 </template>
 
 <script>
-export default {
-  name: 'RingsAnimation',
-};
 </script>
 
 <style lang="scss" scoped>
