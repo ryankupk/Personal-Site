@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.contact import router as contact_router
+from app.api.wordle import router as wordle_router
 
 
 app = FastAPI()
@@ -19,6 +20,7 @@ app.add_middleware(
 )
 
 app.include_router(contact_router, prefix="/api")
+app.include_router(wordle_router, prefix="/api")
     
 
 @app.get("/api")
