@@ -1,11 +1,29 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router' 
-import DevelopmentBanner from './components/DevelopmentBanner.vue'; 
+import Banner from './components/Banner.vue'; 
+
+
+import { onMounted, ref } from 'vue';
+
+const bannerHeight = ref(0);
+
+onMounted(() => {
+  const bannerElement = document.querySelector('.banner');
+  if (bannerElement) {
+    bannerHeight.value = bannerElement.offsetHeight + 'px';
+  }
+});
+
 </script>
 
 <template>
-  <DevelopmentBanner class="banner"/>
-  <header>
+  <Banner 
+  class="banner" 
+  banner-text="&#9888; Site is currently under active development, expect changes &#9888;"
+  bg-color="#ffecb3"
+  border-color="#ffd700"
+  />
+  <header :style="{ paddingTop: bannerHeight }">
 
     <div class="router-wrapper">
       <nav>
@@ -24,8 +42,10 @@ import DevelopmentBanner from './components/DevelopmentBanner.vue';
 
 <style scoped>
 .banner {
-  
-
+  position: fixed; /* or absolute */
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
 }
 
 header {
