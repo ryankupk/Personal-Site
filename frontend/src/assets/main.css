@@ -10,7 +10,7 @@
 
 a.blue {
   text-decoration: none;
-  color: rgb(0, 63, 235);
+  color: rgb(57, 106, 241);
   transition: 0.4s;
   padding: 3px;
 }
@@ -29,5 +29,14 @@ a.blue {
    }
 
   #app {
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
