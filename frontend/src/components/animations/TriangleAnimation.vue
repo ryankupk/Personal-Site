@@ -1,5 +1,5 @@
 <template>
-    <!-- adapted from https://codepen.io/eight/pen/LrabbE -->
+  <!-- adapted from https://codepen.io/eight/pen/LrabbE -->
   <div class="triangle">
     <div class="square" v-for="i in 120" :key="i" :style="squareStyle(i)"></div>
   </div>
@@ -27,8 +27,6 @@ const squareStyle = (i) => {
 
   animationDelay = `${baseDelay * i}s`;
   filter = `hue-rotate(${3 * i}deg)`;
-
-  console.log(rotateAnimationName, animationDuration, animationTimingFunction)
 
   return {
     position: 'absolute',
@@ -63,6 +61,6 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-20px, -20px);
+  /* transform: translate(-20px, -20px); */
 }
 </style>
