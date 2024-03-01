@@ -86,4 +86,10 @@ nav a:first-of-type {
     font-size: 1rem; /* Adjust font size as necessary */
   }
 }
+@media (max-width: 500px) {
+  nav a {
+    padding: 0 0.53rem;
+    font-size: 0.87rem;
+  }
+}
 </style>
