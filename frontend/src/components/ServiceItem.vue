@@ -14,32 +14,51 @@ defineProps({
         required: true
     }
 });
-const dimensions = ref('150px');
+const dimensions = ref('120rem');
 </script>
 
 <template>
   <div class="item">
     <a :href="url">
-        <h1 class="service-name">{{ name }}</h1>
-        <img class="service-icon" :src="`${name.toLowerCase()}.${extension}`" :alt="name" :width="dimensions" :height="dimensions">
-        <!-- <picture> <source :type="image/`${extension}`" :srcset="`${name.toLowerCase()}.${extension}`"> </picture> -->
+        <h4 class="service-name">{{ name }}</h4>
+        <div class="service-icon-container">
+            <img class="service-icon" 
+            :src="`${name.toLowerCase()}.${extension}`" 
+            :alt="name" 
+            :width="dimensions" 
+            :height="dimensions">
+        </div>
     </a>
   </div>
 </template>
 
 <style scoped>
+.item {
+    display: flex;
+    margin: 18px;
+    flex-direction: column;
+    align-items: center;
+    min-width: 167px;
+}
+
 a, a:visited {
   text-decoration: none;
   color: inherit;
 }
 
-h1 {
+h4 {
     display: flex;
     justify-content: center;
 }
-
-.item {
-    margin: 18px;
+.service-icon {
+    width: 100%;
+    object-fit: contain;
+}
+.service-icon-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }
 
 </style>

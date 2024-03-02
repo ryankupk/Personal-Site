@@ -13,12 +13,9 @@ import ServiceItem from '../components/ServiceItem.vue'
 </template>
 
 <style scoped>
-@media (min-width: 1024px) {
   .services {
     display: flex;
     flex-wrap: wrap;
-    /* align-items: center; */
-    justify-content: center;
+    justify-content: space-around;
   }
-}
 </style>
