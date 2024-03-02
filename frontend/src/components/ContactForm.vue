@@ -8,7 +8,6 @@ import { useToast } from 'vue-toastification';
 
 import { Tippy } from 'vue-tippy';
 import 'tippy.js/dist/tippy.css'
-import 'tippy.js/themes/light.css'
 
 const form = ref({
   message: '',
