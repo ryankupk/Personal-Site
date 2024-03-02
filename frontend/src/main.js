@@ -7,14 +7,16 @@ import router from './router'
 import Toast, { POSITION } from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
 
-import VueTippy from 'vue-tippy'
+import VueTippy from 'vue-tippy';
+
+import { Quasar } from 'quasar';
+import 'quasar/src/css/index.sass';
 
 const app = createApp(App);
 
 app.use(router);
 
 app.use(Toast, {
-  // You can set global options here
   position: POSITION.BOTTOM_CENTER,
   timeout: 3000,
   closeOnClick: true,
@@ -27,7 +29,10 @@ app.use(Toast, {
 app.use(VueTippy, {
     component: 'tippy',
     followCursor: true
-  }
-  );
+});
 
-app.mount('#app')
+app.use(Quasar, {
+  plugins: {}
+});
+
+app.mount('#app');
