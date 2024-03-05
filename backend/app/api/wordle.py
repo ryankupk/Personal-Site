@@ -39,7 +39,7 @@ def sort_possible_words(possible_words: list[str], word_frequency) -> list[str]:
         for idx, return_word in enumerate(return_list):
             # if the frequency of the current possible word is less than or equal to the frequency of the current word in the list to be returned
             # and the current possible word is not already in the list
-            if int(word_frequency[possible_word]) <= int(word_frequency[return_word]) and possible_word not in return_list:
+            if int(word_frequency[possible_word]) >= int(word_frequency[return_word]) and possible_word not in return_list:
                 return_list.insert(idx-1 if idx > 0 else idx, possible_word)
                 break
         # insert word into return_list only if it's not already in the list
@@ -100,9 +100,9 @@ async def return_possible_words(guesses: GuessList) -> dict[str, list[str]]:
         # add current word to list of possible words if it passes all above checks
         possible_words.append(word)
 
-
+    if len(possible_words) == 0:
+        raise HTTPException(status_code=400, detail="No possible words")
     possible_words = sort_possible_words(possible_words, word_frequency)
     return {
-        # "message": "Success",
         "possible_words": possible_words
         }
