@@ -53,7 +53,7 @@ async def return_possible_words(guesses: GuessList) -> dict[str, list[str]]:
     # dictionary of letters that are correct and their known positions
     correct: dict[str, int] = {}
     # dictionary of letters and positions that they are known to not be in
-    in_word = defaultdict[str, list[int]]
+    in_word: defaultdict[str, list[int]] = defaultdict(list)
     # list of letters that are not in the word
     not_in_word = set()
 
