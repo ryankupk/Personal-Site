@@ -19,7 +19,7 @@ const dimensions = ref('120rem');
 
 <template>
   <div class="item">
-    <a :href="url">
+    <a :href="url" target="_blank">
         <h4 class="service-name">{{ name }}</h4>
         <div class="service-icon-container">
             <img class="service-icon" 

@@ -10,6 +10,7 @@ import ServiceItem from '../components/ServiceItem.vue'
     <ServiceItem name="Navidrome" url="https://navi.ryankupka.dev/" extension="png"/>
     <ServiceItem name="Jellyseerr" url="https://reqs.ryankupka.dev/" extension="webp"/>
     <ServiceItem name="Immich" url="https://immich.ryankupka.dev/" extension="png"/>
+    <ServiceItem name="dufs" url="https://dufs.ryankupka.dev/dufs" extension="png"/>
   </div>
 </template>
 
