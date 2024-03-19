@@ -19,7 +19,7 @@ onMounted(() => {
 <template>
   <Banner 
   class="banner" 
-  banner-text="&#9888; Site is currently under active development, expect changes &#9888;"
+  banner-text="&#9888; Site is currently under active development, expect improvements &#9888;"
   bg-color="#ffecb3"
   border-color="#ffd700"
   />
