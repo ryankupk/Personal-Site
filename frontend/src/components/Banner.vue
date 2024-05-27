@@ -1,7 +1,5 @@
 <script setup>
 
-import {ref, defineProps} from 'vue';
-
 const props = defineProps({
   bannerText: {
     type: String,
@@ -24,7 +22,7 @@ const props = defineProps({
   :style="{
       backgroundColor: bgColor,
       borderColor: borderColor,
-      borderStyle: borderColor ? 'solid' : '', // Apply border style only if borderColor is provided
+      borderBottom: borderColor ? `solid ${borderColor}` : '', // Apply border style only if borderColor is provided
     }"
   >
   {{bannerText}}
@@ -39,9 +37,9 @@ const props = defineProps({
     /* max-width: 500px; */
     margin: 0 auto;
     text-align: center;
-    position: sticky;
-    top: 20;
-    left: 0;
+    /* position: sticky; */
+    /* top: 20;
+    left: 0; */
     z-index: 1000;
     color: black; /* Black text color */
     padding: 10px 20px; /* Adds padding for some spacing */

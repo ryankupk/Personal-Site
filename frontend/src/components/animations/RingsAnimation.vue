@@ -1,4 +1,9 @@
-<script>
+<script setup>
+import { onUnmounted } from 'vue';
+// TODO: add the div onMounted and remove it onUnmounted
+onUnmounted(() => {
+  return;
+})
 </script>
 
 <template>

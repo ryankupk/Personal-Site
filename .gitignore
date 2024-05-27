@@ -31,5 +31,10 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+*.un~
 
 *.tsbuildinfo
+
+populatedb.py
+
+frontend/public/

@@ -17,13 +17,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <Banner 
+  <!-- <Banner 
   class="banner" 
   banner-text="&#9888; Site is currently under active development, expect improvements &#9888;"
   bg-color="#ffecb3"
   border-color="#ffd700"
-  />
-  <header :style="{ paddingTop: bannerHeight }">
+  /> -->
+  <header>
 
     <div class="router-wrapper">
       <nav>
@@ -42,7 +42,7 @@ onMounted(() => {
 
 <style scoped>
 .banner {
-  position: fixed; /* or absolute */
+  position: fixed; 
   left: 50%;
   transform: translateX(-50%);
   width: auto;
@@ -53,7 +53,7 @@ header {
 }
 
 .router-wrapper {
-  width: 100%; /* Ensure router-wrapper spans the full width */
+  width: 100%; 
   display: flex;
   justify-content: center; /* Horizontally center the content within the router-wrapper */
 }

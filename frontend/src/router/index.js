@@ -22,6 +22,11 @@ const router = createRouter({
       name: 'projects',
       component: () => import('../views/ProjectView.vue')
     },
+      {
+        path: '/projects/wordle',
+        name: 'wordle',
+        component: () => import('../views/projects/wordle/WordleView.vue')
+      },
     {
       path: '/services',
       name: 'services',

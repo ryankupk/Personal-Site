@@ -16,6 +16,7 @@ import ServiceItem from '../components/ServiceItem.vue'
 
 <style scoped>
   .services {
+    width: 100%;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
