@@ -29,7 +29,7 @@ defineProps({
     <q-expansion-item :label="title" style="max-width: 100%;">
       <div class="inner-items">
         <div class="source-wrapper">
-          <img src="/public/github-mark-white.svg" class="gh-logo">
+          <img src="@/assets/github-mark-white.svg" class="gh-logo">
           <a :href="sourceURL" class="blue project-link">View Source</a> <br/>
         </div>
         {{ description }}
