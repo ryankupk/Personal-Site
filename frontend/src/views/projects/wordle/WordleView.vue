@@ -2,7 +2,7 @@
 import axios from 'axios';
 import BaseProjectView from '@/views/projects/BaseProjectView.vue';
 import { ref, onMounted } from 'vue';
-import { nextTick } from 'vue';
+// import { nextTick } from 'vue';
 
 const maxGuesses = ref(6);
 const wordLength = ref(5);
