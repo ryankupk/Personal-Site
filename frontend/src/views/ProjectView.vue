@@ -29,12 +29,12 @@ import BaseProjectView from '@/views/projects/BaseProjectView.vue';
 
 <style>
 @media (min-width: 1024px) {
-  .projects {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    align-items: center;
-    margin-top: 30px;
-  }
+}
+.projects {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+  margin-top: 30px;
 }
 </style>
