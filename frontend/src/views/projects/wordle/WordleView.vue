@@ -2,7 +2,12 @@
 import axios from 'axios';
 import BaseProjectView from '@/views/projects/BaseProjectView.vue';
 import { ref, onMounted } from 'vue';
-// import { nextTick } from 'vue';
+import { nextTick } from 'vue';
+
+import { Tippy } from 'vue-tippy';
+import 'tippy.js/dist/tippy.css'
+
+import ToolTipInfo from '@/components/icons/ToolTipInfo.vue'
 
 const maxGuesses = ref(6);
 const wordLength = ref(5);
@@ -14,34 +19,76 @@ const colorIndices = ref(Array(maxGuesses.value).fill().map(() => Array(wordLeng
 const rowDisabled = ref(Array(maxGuesses.value).fill(true));
 
 const getPossibleWords = () => {
+  possibleWords.value = ["loading..."]
+
   const guess_list = {};
   const guessesElements = Array.from(document.querySelectorAll(".guessInput"));
-  console.log(guessesElements)
-  const guessPattern = Array.from(guessesElements).map(input => {
-    if (input.classList.includes(colors.value[0])) {
-      return '!'; // not present - gray
-    }
-    else if (input.classList.includes(colors.value[1])) {
-      return '_'; // present, wrong place - yellow
-    }
-    else if (input.classList.includes(colors.value[2])) {
-      return ' '; // present, correct place - green
-    }
-  })
-  console.log(guessPattern)
-  const guessLetters = guessesElements.map(input => input.value); 
-  const guessString = guessLetters.join('');
-  const words = guessString.match(new RegExp(`.{${wordLength.value}}`, 'g'));
-  words.forEach(word => {
-    guess_list[word] = '_____'
-  })
 
-  axios.post('/api/wordle', {"guess_list": guess_list}).then((response) => {
-    possibleWords.value = response.data.possible_words
+  const guessPattern = Array.from(guessesElements).map(input => {
+    const notPresent = '!';
+    const presentWrongPlace = '_';
+    const presentCorrectPlace = ' ';
+
+    if (input.classList.contains(colors.value[0])) {
+      return notPresent;
+    }
+    else if (input.classList.contains(colors.value[1])) {
+      return presentWrongPlace;
+    }
+    else if (input.classList.contains(colors.value[2])) {
+      return presentCorrectPlace;
+    }
+  }).join('');
+  const guessPatternWords = guessPattern.match(new RegExp(`.{${wordLength.value}}`, 'g'));
+
+  const guessLetters = guessesElements.map(input => input.value.toLowerCase()); 
+  let flag = true;
+  for (let letter of guessLetters) {
+    if (letter != '') {
+      flag = false;
+      break;
+    }
+  }
+  if (flag) {
+    possibleWords.value = [];
+    return;
+  }
+  const guessString = guessLetters.join('');
+
+  const words = guessString.match(new RegExp(`.{${wordLength.value}}`, 'g'));
+  for (let i = 0; i < words.length; ++i) {
+    guess_list[words[i]] = guessPatternWords[i];
+  }
+
+  axios.post('/api/wordle', {"guess_list": guess_list})
+  .then((response) => {
+    const possible_words = response.data.possible_words;
+    if (possible_words.length == 1) {
+      possible_words.push("🎉")
+    }
+    possibleWords.value = response.data.possible_words;
+  })
+  .catch((error) => {
+    possibleWords.value = ["Invalid guess!"];
+    // console.error('Failed to fetch possible words: ', error);
   })
 }
 
-const handleInput = (event, wordIndex, charIndex) => {
+const clearWord = async (wordIndex) => {
+
+  for (let i = 0; i < words.value[wordIndex].length; ++i) {
+    words.value[wordIndex][i] = '';
+    colorIndices.value[wordIndex][i] = 0;
+  }
+
+  rowDisabled.value[wordIndex] = true;
+
+  await nextTick();
+
+  getPossibleWords();
+}
+
+const handleInput = async (event, wordIndex, charIndex) => {
   if (event.inputType === 'deleteContentBackward') { // don't move to the next box if backspacing
     return;
   }
@@ -52,6 +99,8 @@ const handleInput = (event, wordIndex, charIndex) => {
   }
   else if (wordIndex < words.value.length - 1) {
     inputs.value[(wordIndex + 1) * wordLength.value].focus();
+    await nextTick();
+    getPossibleWords();
   }
 
   const rowFilled = words.value[wordIndex].every(char => char !== '');
@@ -76,8 +125,9 @@ const handleBackspace = (event, wordIndex, charIndex) => {
   rowDisabled.value[wordIndex] = !rowFilled;
 }
 
-const togglePresence = (wordIndex, charIndex) => {
+const togglePresence = async (wordIndex, charIndex) => {
   colorIndices.value[wordIndex][charIndex] = (colorIndices.value[wordIndex][charIndex] + 1) % colors.value.length;
+  await nextTick();
   getPossibleWords();
 }
 
@@ -85,6 +135,10 @@ const getColorClass = (wordIndex, charIndex) => {
   const colorIndex = colorIndices.value[wordIndex][charIndex];
   return colors.value[colorIndex]
 }
+
+// const fillWord = (word) => {
+//   console.log(word);
+// }
 
 onMounted(() => {
 })
@@ -96,7 +150,7 @@ onMounted(() => {
   <BaseProjectView>
     <div class="viewContainer">
       <div class="guessesContainer">
-        <h4 class="guessHeader">Guesses</h4>
+        <h4 class="guessHeader">Guesses&nbsp;<ToolTipInfo placement="top" content="Enter your guesses below the same as you entered them in Wordle" /></h4>
         <div class="guessContainer">
           <div class="guess" v-for="(word, wordIndex) in words" :key="wordIndex">
             <div class="inputContainer">
@@ -105,27 +159,30 @@ onMounted(() => {
                   class="guessInput"
                   :class="getColorClass(wordIndex, charIndex)"
                   type="text"
+                  autocapitalize="none"
+                  autocorrect="off"
                   maxlength="1"
                   ref="inputs"
                   v-model="words[wordIndex][charIndex]"
                   @input="handleInput($event, wordIndex, charIndex)"
                   @keydown="handleBackspace($event, wordIndex, charIndex)"
                 />
-                <button :disabled="rowDisabled[wordIndex]" @click="togglePresence(wordIndex, charIndex)">x</button>
+                <button :disabled="rowDisabled[wordIndex]" @click="togglePresence(wordIndex, charIndex)">ㅤ</button> <!-- this line contains an empty character for the text of the button -->
               </div>
             </div>
-            <button @click="getPossibleWords">lock in</button>
-            <button @click="getPossibleWords">clear</button>
+             <tippy content="Clear word" placement="right"><button @click="clearWord(wordIndex)">✗</button></tippy>
           </div>
 
         </div>
       </div>
 
+      <div class="centeredDiv"></div>
+
       <div class="possibleContainer">
-        <h4 class="possibleHeader">Possible words</h4>
+        <h4 class="possibleHeader">Possible&nbsp;words&nbsp;<ToolTipInfo placement="top" content="Below are possible words given the parameters in the 'Guesses'<br/><br/>They're sorted from most-likely to least-likely according to occurrence in English, however if none of the words are in the top 100,000 most used words, then they're arbitrarily sorted"/></h4>
         <div class="wordContainer">
           <div v-for="word in possibleWords" :key="word">
-            {{ word }}
+            {{ word }} <!-- <button @click="fillWord(word)">↵</button> -->
           </div>
         </div>
       </div>
@@ -186,13 +243,24 @@ $guessInputSize: 30px;
   color: #f8f8f8;
   border: none;
   margin: 8px;
+  border-radius: 5px;
 }
 
 .wordContainer {
+  margin-top: 15px;
   max-height: 300px;
   min-height: 300px;
+  max-width: 300px;
+  min-width: 200px;
   overflow-y: auto;
   justify-content: center;
+  border: 1px solid gray;
+  border-radius: 5px;
+}
+
+.centeredDiv {
+  max-width: 15%;
+  min-width: 10%;
 }
 
 .possibleContainer {
@@ -220,6 +288,9 @@ $guessInputSize: 30px;
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+  .centeredDiv {
+    display: none;
   }
 }
 </style>
