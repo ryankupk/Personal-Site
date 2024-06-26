@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router' 
-import Banner from './components/Banner.vue'; 
+// import Banner from './components/Banner.vue'; 
 
 
 import { onMounted, ref } from 'vue';
