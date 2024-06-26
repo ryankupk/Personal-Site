@@ -179,7 +179,7 @@ onMounted(() => {
       <div class="centeredDiv"></div>
 
       <div class="possibleContainer">
-        <h4 class="possibleHeader">Possible&nbsp;words&nbsp;<ToolTipInfo placement="top" content="Below are possible words given the parameters in the 'Guesses'<br/><br/>They're sorted from most-likely to least-likely according to occurrence in English, however if none of the words are in the top 100,000 most used words, then they're arbitrarily sorted"/></h4>
+        <h4 class="possibleHeader">Possible&nbsp;words&nbsp;<ToolTipInfo placement="top" content="Below are possible words given the parameters in the 'Guesses'<br/><br/>They're sorted from most-likely to least-likely according to occurrence in English, however if none of the words are in the top ~300,000 most used words, then they're arbitrarily sorted<br/><br/>The top word is not necessarily the best next guess, it's just the most likely word to be the final word. Guesses which eliminate letters may be better than going for the final word for interim guesses."/></h4>
         <div class="wordContainer">
           <div v-for="word in possibleWords" :key="word">
             {{ word }} <!-- <button @click="fillWord(word)">↵</button> -->

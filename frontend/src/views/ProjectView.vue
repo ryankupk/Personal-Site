@@ -14,7 +14,7 @@ import BaseProjectView from '@/views/projects/BaseProjectView.vue';
     />
     <ProjectItem 
       title="Wordle Helper"
-      description="Wordle Helper"
+      description="Utility to help solve Wordle. Enter guesses and select whether the letter is not in the word at all (gray), in the word in the wrong place (yellow), or in the word and in the correct place (green). The list of possible words will be displayed as a suggestion for what the word may be."
       sourceURL="https://github.com/ryankupk/wordle-hacks"
       routerTo="wordle"
     />
