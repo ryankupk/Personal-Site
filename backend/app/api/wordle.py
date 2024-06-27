@@ -10,27 +10,32 @@ client = AsyncIOMotorClient(motor_details)
 db = client.wordle
 word_freq_collection = db.word_freq
 
-def set_patterns(guess: str, pattern: str, correct: dict[str, int], in_word: defaultdict[str, list[int]], not_in_word: set) -> tuple[ dict[str, int], defaultdict[str, list[int]], set ]:
-    guess = guess.upper()
+def set_patterns(guess: str,
+                 pattern: str,
+                 correct: dict[str, int],
+                 in_word: defaultdict[str, list[int]],
+                 not_in_word: dict[str, int]
+                 ) -> tuple[ dict[str, int], defaultdict[str, list[int]], dict[str, int] ]:
+
     for idx, _ in enumerate(guess):
-        # _ means present, in wrong place
-        # ! means not in word
-        #   means present, in right place
+        # '!' means not in word
+        # '_' means present, in wrong place
+        # ' ' means present, in right place
 
         # check that the letter at position[idx] is not in word
         # duplicate letters cannot be added to the list of letters not in the word if they were otherwise decided to be in the word and/or in the correct place
-        if  pattern[idx] == "!" \
-            and guess[idx].lower() not in correct.keys() \
-            and (guess[idx].lower() not in in_word.keys() and guess[idx] not in guess[idx+1:]):
-                not_in_word.add(guess[idx].lower())
+        if (pattern[idx] == "!"
+            and guess[idx] not in correct.keys()
+            and (guess[idx] not in in_word.keys() and guess[idx] not in guess[idx+1:])):
+                not_in_word[guess[idx]] = idx
 
         # check if the letter is in the word and correct place
         elif pattern[idx] == ' ':
-            correct[guess[idx].lower()] = idx 
+            correct[guess[idx]] = idx 
 
         # check if the letter is in the word but not in the correct place
         elif pattern[idx] == '_':
-            in_word[guess[idx].lower()].append(idx)
+            in_word[guess[idx]].append(idx)
 
     return correct, in_word, not_in_word
         
@@ -65,7 +70,7 @@ async def return_possible_words(guesses: GuessList) -> dict[str, list[str]]:
     # dictionary of letters and positions that they are known to not be in
     in_word: defaultdict[str, list[int]] = defaultdict(list)
     # list of letters that are not in the word
-    not_in_word = set()
+    not_in_word = {}
 
     # dictionary of words and their frequency in English
     word_frequency = await word_freq_collection.find({}, {'_id': False}).next() # this collection has only one document
@@ -101,8 +106,8 @@ async def return_possible_words(guesses: GuessList) -> dict[str, list[str]]:
         if skip_word_flag: continue
 
         # if any letters that are known to not be in the word are in the current word, skip it
-        for letter in not_in_word:
-            if letter in word:
+        for letter, idx in not_in_word.items():
+            if word[idx] == letter:
                 skip_word_flag = True
                 break
         if skip_word_flag: continue
