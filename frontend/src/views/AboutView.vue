@@ -7,7 +7,7 @@
   <div class="about">
     <div class="header">
       <h2 class="about-header">Hi, I'm Ryan</h2>
-      <img class="propic" src="/public/propic.jpg">
+      <img class="propic" src="/propic.jpg">
     </div>
     <p class="about-item">I'm a software engineer with a passion for solving complex problems and creating efficient, user-friendly applications. I earned my Bachelor's degree in Computer Science with a minor in Spanish and an honors distinction from Westminster University, as well as an Associate's degree with honors distinction from Utah Valley University. My technical skills include proficiency in Python, Java, JavaScript, Vue.js, and various AWS services. I'm also well-versed in both SQL and NoSQL data storage technologies, such as PostgreSQL, DynamoDB, MongoDB, and S3.</p>
     <p class="about-item">Throughout my professional journey, I have had the privilege of working with industry leaders like Amazon, where I developed and maintained scripts, optimized database infrastructure, and collaborated with cross-functional teams to deliver high-quality software. I take pride in my ability to bridge the gap between technical and non-technical stakeholders, effectively communicating complex concepts and translating business requirements into efficient code.</p>
