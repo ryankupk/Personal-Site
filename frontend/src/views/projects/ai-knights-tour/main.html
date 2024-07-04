@@ -1,0 +1,271 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.sound.min.js"></script>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+      canvas {
+        display: block;
+      }
+
+      body {
+        margin: 0;
+        display: flex;
+
+        /* This centers our sketch horizontally. */
+        justify-content: center;
+
+        /* This centers our sketch vertically. */
+        align-items: center;
+      }
+    </style>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <div id="placeholder"></div>
+  </body>
+  <script>
+    class Node {
+      constructor(x, y, depth, parent) {
+        //x, y, depth and parent of each node -- pretty self explanatory
+        this.x = x
+        this.y = y
+        this.depth = depth
+        this.parent = parent
+      }
+    }
+    class Line {
+      constructor(board, x, y) {
+        //position is width of each square multiplied by the number of squares over plus half of 1 square width
+        this.posx = board.w * x + board.w / 2
+        this.posy = board.w * y + board.w / 2
+      }
+      show() {
+        //return a vertex for the position of where the line should go
+        return vertex(this.posx, this.posy)
+      }
+    }
+    class Knight {
+      constructor(board, x, y) {
+        //initialize board object for knight
+        this.board = board
+        //(x,y) coordinates of knight
+        this.x = x
+        this.y = y
+        //fringe/frontier/whatever
+        //it's a stack
+        this.fringe = []
+        //list of visited states
+        this.visited = []
+        //number of squares in board
+        this.boardSize = this.board.cells.length * this.board.cells[0].length
+        //possible moves from any position
+        this.moves = [
+          //y   x     2 sq  1 sq
+          [2, 1], //down  right
+          [2, -1], //down  left
+          [1, -2], //left  down
+          [-1, -2], //left  up
+          [-2, -1], //up    left
+          [-2, 1], //up    right
+          [-1, 2], //right up
+          [1, 2] //right down
+        ]
+      }
+
+      getPath() {
+        //generate path using depth first search
+        //push initial state onto fringe
+        this.fringe.push(new Node(this.x, this.y, 0, undefined))
+        while (this.fringe.length > 0) {
+          //pop top of stack
+          let cur = this.fringe.pop()
+          //if board is oddXodd dimensions, goal state is #squares - 1
+          if (
+            (this.boardSize % 2 === 1 && cur.depth === this.boardSize - 1) ||
+            (this.boardSize % 2 === 0 && cur.depth === this.boardSize)
+          ) {
+            return this.generatePath(cur)
+          }
+          //check if current state has been visited
+          let visited = false
+          for (let i = 0; i < this.visited.length; ++i) {
+            if (cur.x === this.visited[i][0] && cur.y === this.visited[i][1]) {
+              visited = true
+              break
+            }
+          }
+          if (!visited) {
+            //if the state has not been visited, push the state onto the visited list
+            let xy = [cur.x, cur.y]
+            this.visited.push(xy)
+            //generate successors
+            let successors = this.getSuccessors(cur)
+            for (let i = 0; i < successors.length; ++i) {
+              //push each successor onto the fringe
+              this.fringe.push(successors[i])
+            }
+          }
+        }
+      }
+
+      generatePath(node) {
+        path = []
+        while (node !== undefined) {
+          //push node onto front of path, change node to parent
+          path.unshift(node)
+          node = node.parent
+        }
+        return path
+      }
+
+      getSuccessors(cur) {
+        let successors = []
+        for (let i = 0; i < this.moves.length; ++i) {
+          //newx/newy is currentx/currenty + the x and y of each possible move
+          let newx = cur.x + this.moves[i][1]
+          let newy = cur.y + this.moves[i][0]
+          //if the move does not go off the board, push it onto successors list
+          if (
+            newx < this.board.cells[0].length &&
+            newx >= 0 &&
+            newy < this.board.cells.length &&
+            newy >= 0
+          ) {
+            successors.push(new Node(newx, newy, cur.depth + 1, cur))
+          }
+        }
+        return successors
+      }
+    }
+    class Circle {
+      constructor(board, x, y, index, length) {
+        //map color to which dot it is
+        this.c = map(index, 0, length - 1, 0, 255)
+        //position is width of each square multiplied by the number of squares over plus half of 1 square width
+        this.xpos = board.w * x + board.w / 2
+        this.ypos = board.w * y + board.w / 2
+        this.board = board
+      }
+
+      show() {
+        colorMode(HSB)
+        fill(this.c, 100, 100)
+        noStroke()
+        ellipse(this.xpos, this.ypos, this.board.w / 2, this.board.w / 2)
+        stroke(0)
+        colorMode(RGB)
+      }
+    }
+    class Board {
+      constructor() {
+        //        this.cells = [
+        //        [0,0,0,0,0,0,0,0],
+        //        [0,0,0,0,0,0,0,0],
+        //        [0,0,0,0,0,0,0,0],
+        //        [0,0,0,0,0,0,0,0],
+        //        [0,0,0,0,0,0,0,0],
+        //        [0,0,0,0,0,0,0,0],
+        //        [0,0,0,0,0,0,0,0],
+        //        [0,0,0,0,0,0,0,0]
+        //    ];
+        //        this.cells = [
+        //            [0,0,0,0,0,0],
+        //            [0,0,0,0,0,0],
+        //            [0,0,0,0,0,0],
+        //            [0,0,0,0,0,0],
+        //            [0,0,0,0,0,0],
+        //            [0,0,0,0,0,0]
+        //    ];
+        this.cells = [
+          [0, 0, 0],
+          [0, 0, 0],
+          [0, 0, 0]
+        ]
+        this.x = 0
+        this.y = 0
+        this.w = 60
+      }
+
+      show() {
+        //(x,y) coordinates and width of squares
+        let x = this.x
+        let y = this.y
+        let w = this.w
+        let dark = true
+        //color of square
+        let sColor
+        for (let i = 0; i < board.cells.length; ++i) {
+          for (let j = 0; j < board.cells[i].length; ++j) {
+            //set background color for a square based on dark boolean
+            sColor = !dark ? 60 : 255
+            fill(sColor)
+            //draw square
+            rect(x, y, w, w)
+            //move to the next square
+            x += w
+            //change from dark to light or light to dark
+            dark = !dark
+          }
+          //go back to far left of canvas
+          x = 0
+          //move down one row
+          y += this.w
+          //if there are an even number of squares in the rows, dark must be toggled
+          dark = this.cells[0].length % 2 === 0 ? !dark : dark
+        }
+      }
+      addPoint(node) {
+        //change the squares in the knight's path to 1 so a circle can be added
+        this.cells[node.y][node.x] = 1
+      }
+    }
+    let board = new Board()
+    let knight = new Knight(board, 0, 0)
+    let path
+    let pathLength
+    let index = 0
+    let circles = []
+    let lines = []
+
+    function setup() {
+      createCanvas(board.cells[0].length * board.w + 2, board.cells.length * board.w + 2)
+      //generate path
+      path = knight.getPath()
+      pathLength = path.length
+      for (let i = 0; i < pathLength; ++i) {
+        board.addPoint(path[0])
+        circles.push(new Circle(board, path[0].x, path[0].y, i, pathLength))
+        lines.push(new Line(board, path[0].x, path[0].y))
+        path.shift()
+      }
+      //slow down framerate so path visualization can be seen
+      frameRate(1)
+    }
+
+    function draw() {
+      background(255)
+      board.show()
+
+      for (let i = 0; i < index; ++i) {
+        circles[i].show()
+      }
+      beginShape(LINES)
+      for (let i = 0; i < index; ++i) {
+        lines[i].show()
+        if (i > 0) {
+          lines[i].show()
+        }
+      }
+      endShape()
+      index = (index + 1) % pathLength
+    }
+  </script>
+</html>

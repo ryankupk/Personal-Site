@@ -24,12 +24,12 @@ import BaseProjectView from '@/views/projects/BaseProjectView.vue';
       sourceURL="https://github.com/ryankupk/Ray-Tracing"
       externalLink="/projects/RayTracing"
     />
-    <!-- <ProjectItem 
+    <ProjectItem 
       title="Knight's Tour"
-      description="Knight's Tour"
+      description="A knight's tour is a sequence of moves of a knight on a chessboard such that the knight visits every square exactly once"
       sourceURL="https://github.com/ryankupk/ai-knights-tour"
-      routerTo="knightsTour"
-    /> -->
+      externalLink="/projects/KnightsTour"
+    />
   </div>
 </template>
 

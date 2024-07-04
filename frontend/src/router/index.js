@@ -31,6 +31,10 @@ const router = createRouter({
       //   path: '/projects/RayTracing',
       //   name: 'RayTracing',
       // },
+      // { // not used since this is served by nginx directly
+      //   path: '/projects/KnightsTour',
+      //   name: 'KnightsTour',
+      // },
     {
       path: '/services',
       name: 'services',
