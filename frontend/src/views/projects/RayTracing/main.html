@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Canvas Resize</title>
+    <style type="text/css">
+      canvas {
+      }
+      body {
+        background-color: #7f7f7f;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas></canvas>
+
+    <div class="inputs" style="text-align: center">
+      <div class="innerInputs" style="margin: auto">
+        <form id="form">
+          <hr />
+          <label for="arrowHeight">Arrow Height: </label>
+          <select name="arrowHeight">
+            <option value="100">100</option>
+            <option value="110">110</option>
+            <option value="120">120</option>
+            <option value="130">130</option>
+            <option value="140">140</option>
+            <option value="150">150</option>
+            <option value="160">160</option>
+            <option value="170">170</option>
+            <option value="180">180</option>
+            <option value="190">190</option>
+            <option value="200">200</option>
+          </select>
+          <hr />
+          <label for="medium">Medium: </label>
+          <select name="medium">
+            <option value="lens">Lens</option>
+            <option value="mirror">Mirror</option>
+          </select>
+          <hr />
+          <label for="shape">Shape: </label>
+          <select name="shape">
+            <option value="concave">Concave</option>
+            <option value="convex">Convex</option>
+          </select>
+          <hr />
+          <label for="focalLength">Focal Point Length: </label>
+          <select name="focalLength">
+            <option value="70">70</option>
+            <option value="80">80</option>
+            <option value="90">90</option>
+            <option value="100">100</option>
+            <option value="110">110</option>
+            <option value="120">120</option>
+            <option value="130">130</option>
+            <option value="140">140</option>
+            <option value="150">150</option>
+            <option value="160">160</option>
+            <option value="170">170</option>
+          </select>
+          <hr />
+          <label for="objDist">Object Distance: </label>
+          <select name="objDist">
+            <option value="300">300</option>
+            <option value="350">350</option>
+            <option value="400">400</option>
+            <option value="450">450</option>
+            <option value="500">500</option>
+            <option value="550">550</option>
+            <option value="600">600</option>
+            <option value="650">650</option>
+            <option value="700">700</option>
+          </select>
+          <hr />
+          <button type="button" name="parameters" id="btn">Change Parameters!</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
+<script>
+  //arrow object-----------------------------------------------------------
+  function Arrow(h, x, y) {
+    this.height = h
+    this.posx = x
+    this.posy = y
+
+    this.drawArrow = function () {
+      //I have no idea how this works but it's perfect
+      c.strokeStyle = 'black'
+      c.beginPath()
+      c.moveTo(this.posx, this.posy)
+      c.lineTo(this.posx, this.posy - this.height)
+      c.stroke()
+      c.beginPath()
+      c.moveTo(this.posx, this.posy - this.height)
+      c.lineTo(this.posx - 0.2 * this.height, this.posy - 0.6 * this.height)
+      c.stroke()
+      c.beginPath()
+      c.moveTo(this.posx, this.posy - this.height)
+      c.lineTo(this.posx + 0.2 * this.height, this.posy - 0.6 * this.height)
+      c.stroke()
+    }
+  }
+  var params = ['150', 'mirror', 'convex', '200', '300']
+  var canvas = document.querySelector('canvas')
+  canvas.width = window.innerWidth
+  canvas.height = window.innerHeight
+  var c = canvas.getContext('2d')
+
+  document.getElementById('btn').onclick = function (e) {
+    c.clearRect(0, 0, canvas.width, canvas.height)
+    selects = document.getElementsByTagName('select')
+    for (var i = 0; i < selects.length; i++) {
+      params[i] = selects[i].value
+    }
+    //center line-----------------------------------------------------------------
+    c.beginPath()
+    c.moveTo(canvas.width, canvas.height / 2)
+    c.lineTo(0, canvas.height / 2)
+    c.stroke()
+    //main------------------------------------------------------------------------
+    var a = new Arrow(params[0], canvas.width / 2 - params[4], canvas.height / 2)
+    c.beginPath()
+    a.drawArrow()
+    //concave mirror----------------------------------------------------------------
+    if (params[1] == 'mirror' && params[2] == 'concave') {
+      var concaveM = new ConcaveMirror(params[3], canvas.width / 2, canvas.height / 2, a)
+      c.beginPath()
+      concaveM.drawMirror()
+      concaveM.drawFocalPoint()
+      concaveM.drawLines()
+      concaveM.drawImage()
+    } //convex mirror--------------------------------------------------------------
+    else if (params[1] == 'mirror' && params[2] == 'convex') {
+      var convexM = new ConvexMirror(params[3], canvas.width / 2, canvas.height / 2, a)
+      c.beginPath()
+      convexM.drawMirror()
+      convexM.drawFocalPoint()
+      convexM.drawLines()
+      convexM.drawImage()
+    } //concave lens---------------------------------------------------------------
+    else if (params[1] == 'lens' && params[2] == 'concave') {
+      var concavel = new ConcaveLens(params[3], canvas.width / 2, canvas.height / 2, a)
+      c.beginPath()
+      concavel.drawLens()
+      concavel.drawFocalPoint()
+      concavel.drawLines()
+      concavel.drawImage()
+    } //convex lens----------------------------------------------------------------
+    else if (params[1] == 'lens' && params[2] == 'convex') {
+      var convexl = new ConvexLens(params[3], canvas.width / 2, canvas.height / 2, a)
+      c.beginPath()
+      convexl.drawLens()
+      convexl.drawFocalPoint()
+      convexl.drawLines()
+      convexl.drawImage()
+    }
+  }
+  //concave lens----------------------------------------------------------
+  function ConcaveLens(f, x, y, a) {
+    this.focalLength = parseInt(f)
+    this.posx = x
+    this.posy = y
+    this.arrow = a
+    this.offset = 50
+    this.Radius = this.arrow.height * 1.5
+    this.radius = 15
+    this.midpoint = this.posx + this.offset / 2
+
+    this.drawLens = function () {
+      c.translate(0, this.Radius)
+      c.moveTo(this.posx, this.posy)
+      c.lineTo(this.posx + this.offset, this.posy) //line to the right
+      c.ellipse(
+        this.posx + this.offset,
+        this.posy - this.Radius,
+        this.radius,
+        this.Radius,
+        0,
+        Math.PI / 2,
+        (3 * Math.PI) / 2,
+        false
+      ) //right ellipse
+      c.lineTo(this.posx, this.posy - this.Radius * 2) //top line to the left
+      c.moveTo(this.posx, this.posy) //move back to origin
+      c.ellipse(
+        this.posx,
+        this.posy - this.Radius,
+        this.radius,
+        this.Radius,
+        0,
+        Math.PI / 2,
+        (3 * Math.PI) / 2,
+        true
+      ) //left ellipse
+      c.strokeStyle = 'black'
+      c.stroke()
+    }
+
+    this.drawFocalPoint = function () {
+      //draw focal point
+      c.beginPath()
+      c.translate(0, -this.Radius)
+      c.strokeStyle = 'black'
+      c.strokeFill = 'black'
+      c.moveTo(this.midpoint, this.posy)
+      c.arc(this.midpoint - this.focalLength, this.posy, 2.5, 0, Math.PI * 2)
+      c.arc(this.midpoint + this.focalLength, this.posy, 2.5, 0, Math.PI * 2)
+      c.fill()
+    }
+
+    this.drawLines = function () {
+      //line straight across then away from focal point--------------------------------------------
+      //straight across
+      c.beginPath()
+      c.strokeStyle = 'red'
+      c.moveTo(a.posx, a.posy - a.height)
+      c.lineTo(this.midpoint, this.posy - a.height)
+      c.stroke()
+      //line away from focal point
+      c.beginPath()
+      c.moveTo(this.midpoint, this.posy - a.height)
+      c.translate(this.midpoint, this.posy - a.height)
+      var angle = Math.atan2(
+        a.posy - a.height - this.posy,
+        this.midpoint - (this.midpoint - this.focalLength)
+      )
+      var r = 10000
+      var x = r * Math.cos(angle)
+      var y = r * Math.sin(angle)
+      c.lineTo(x, y)
+      c.stroke()
+      //dashed line reflected through focal point
+      c.beginPath()
+      c.setLineDash([5])
+      c.translate(-this.midpoint, -(this.posy - a.height))
+      angle = angle + Math.PI
+      x = r * Math.cos(angle)
+      y = r * Math.sin(angle)
+      c.moveTo(this.midpoint, this.posy - a.height)
+      c.translate(this.midpoint, this.posy - a.height)
+      c.lineTo(x, y)
+      c.translate(-this.midpoint, -(this.posy - a.height))
+      c.stroke()
+      c.setLineDash([])
+
+      //line straight through center------------------------------------------------------
+      //line all the way through center
+      c.beginPath()
+      var angle = Math.atan2(a.posy - a.height - this.posy, a.posx - this.midpoint)
+      angle = angle + Math.PI
+      var r = 10000
+      var x = r * Math.cos(angle)
+      var y = r * Math.sin(angle)
+      c.moveTo(a.posx, a.posy - a.height)
+      c.translate(a.posx, a.posy - a.height)
+      c.lineTo(x, y)
+      c.strokeStyle = 'green'
+      c.stroke()
+      //line back through center to top left
+      c.beginPath()
+      c.translate(-a.posx, -(a.posy - a.height))
+      c.moveTo(this.midpoint, this.posy)
+      c.translate(this.midpoint, this.posy)
+      c.lineTo(-x, -y)
+      c.setLineDash([5])
+      c.stroke()
+      c.translate(-this.midpoint, -this.posy)
+      c.setLineDash([])
+
+      //line to far focal point and straight through-------------------------------------
+      //line to opposite focal point
+      c.beginPath()
+      c.translate(a.posx, a.posy - a.height)
+      c.moveTo(0, 0)
+      var angle = Math.atan2(
+        a.posy - a.height - this.posy,
+        a.posx - (this.midpoint + this.focalLength)
+      )
+      var r = (1 / Math.cos(angle)) * (this.midpoint - a.posx)
+      var x = r * Math.cos(angle)
+      var y = r * Math.sin(angle)
+      c.lineTo(x, y)
+      //horizontal line at same height
+      c.lineTo(10000, y)
+      c.strokeStyle = 'blue'
+      c.stroke()
+      //virtual line reflected off
+      c.beginPath()
+      c.setLineDash([5])
+      c.moveTo(x, y)
+      c.lineTo(-10000, y)
+      c.strokeStyle = 'blue'
+      c.stroke()
+
+      // reset for next params
+      c.translate(-a.posx, -(a.posy - a.height))
+      c.strokeStyle = 'black'
+      c.setLineDash([])
+    }
+
+    this.drawImage = function () {
+      //calculate distance
+      var objectDistance = this.midpoint - a.posx
+      var objectDistanceInverse = 1 / objectDistance
+      var focalLengthInverse = 1 / -this.focalLength
+      var imageDistanceInverse = objectDistanceInverse - focalLengthInverse
+      var imageDistance = 1 / imageDistanceInverse
+
+      //calculate height
+      var imageHeight
+      var objectHeight = a.height
+      imageHeight = -(imageDistance * objectHeight) / objectDistance
+
+      var imageArrow = new Arrow(-imageHeight, this.midpoint - imageDistance, canvas.height / 2)
+      imageArrow.drawArrow()
+    }
+  }
+  //convex lens----------------------------------------------------------
+  function ConvexLens(f, x, y, a) {
+    this.focalLength = parseInt(f)
+    this.posx = x
+    this.posy = y
+    this.arrow = a
+    this.offset = 10 //"width" of lens
+    this.Radius = this.arrow.height * 1.5 //major radius
+    this.radius = 20 //minor radius
+    this.midpoint = this.posx + this.offset / 2
+
+    this.drawLens = function () {
+      c.translate(0, this.Radius)
+      c.moveTo(this.posx, this.posy)
+      c.lineTo(this.posx + this.offset, this.posy) //line to the right
+      c.ellipse(
+        this.posx + this.offset,
+        this.posy - this.Radius,
+        this.radius,
+        this.Radius,
+        0,
+        Math.PI / 2,
+        (3 * Math.PI) / 2,
+        true
+      ) //right ellipse
+      c.lineTo(this.posx, this.posy - this.Radius * 2) //line back to the left
+      c.moveTo(this.posx, this.posy) //move to bottom
+      c.ellipse(
+        this.posx,
+        this.posy - this.Radius,
+        this.radius,
+        this.Radius,
+        0,
+        Math.PI / 2,
+        (3 * Math.PI) / 2,
+        false
+      ) //left ellipse
+      c.strokeStyle = 'black'
+      c.stroke()
+    }
+
+    this.drawFocalPoint = function () {
+      //draw focal point
+      c.beginPath()
+      c.translate(0, -this.Radius)
+      c.strokeStyle = 'black'
+      c.strokeFill = 'black'
+      c.arc(this.midpoint - this.focalLength, this.posy, 2.5, 0, Math.PI * 2)
+      c.arc(this.midpoint + this.focalLength, this.posy, 2.5, 0, Math.PI * 2)
+      c.fill()
+    }
+
+    this.drawLines = function () {
+      //line straight across then through focal point--------------------------
+      //straight across
+      c.beginPath()
+      c.strokeStyle = 'red'
+      c.moveTo(a.posx, a.posy - a.height)
+      c.lineTo(this.midpoint, this.posy - a.height)
+      c.stroke()
+      //through focal point
+      var angle = Math.atan2(
+        this.posy - a.height - this.posy,
+        this.midpoint - (this.midpoint - this.focalLength)
+      )
+      var r = 10000
+      var x = r * Math.cos(angle)
+      var y = r * Math.sin(angle)
+      c.beginPath()
+      c.moveTo(this.midpoint, this.posy - a.height)
+      c.translate(this.midpoint, this.posy - a.height)
+      c.lineTo(x, -y) //negative for no reason
+      c.translate(-this.midpoint, -(this.posy - a.height))
+
+      c.stroke()
+
+      //line straight through center-------------------------------------------
+      c.beginPath()
+      c.moveTo(a.posx, a.posy - a.height)
+      var angle = Math.atan2(a.posy - a.height - this.posy, a.posx - this.midpoint)
+      var r = 10000
+      var x = r * Math.cos(angle)
+      var y = r * Math.sin(angle)
+      c.translate(a.posx, a.posy - a.height)
+      c.lineTo(-x, -y)
+      c.translate(-a.posx, -(a.posy - a.height))
+      c.strokeStyle = 'green'
+      c.stroke()
+
+      //line through focal point then stright across---------------------------
+      //through focal point
+      c.beginPath()
+      c.moveTo(a.posx, a.posy - a.height)
+      var angle = Math.atan2(
+        a.posy - a.height - this.posy,
+        a.posx - (this.midpoint - this.focalLength)
+      )
+      var r = (1 / Math.cos(angle)) * (this.midpoint - a.posx)
+      var x = r * Math.cos(angle)
+      var y = r * Math.sin(angle)
+      c.translate(a.posx, a.posy - a.height)
+      c.lineTo(x, y)
+      //straight across
+      c.lineTo(canvas.width, y)
+      c.translate(-a.posx, -(a.posy - a.height))
+      c.strokeStyle = 'blue'
+      c.stroke()
+
+      // reset for next params
+      c.strokeStyle = 'black'
+      c.setLineDash([])
+    }
+    this.drawImage = function () {
+      //calculate distance
+      var objectDistance = this.midpoint - a.posx
+      var objectDistanceInverse = 1 / objectDistance
+      var focalLengthInverse = 1 / this.focalLength
+      var imageDistanceInverse = objectDistanceInverse - focalLengthInverse
+      var imageDistance = -1 / imageDistanceInverse
+
+      //calculate height
+      var imageHeight
+      var objectHeight = a.height
+      imageHeight = -(imageDistance * objectHeight) / objectDistance
+
+      var imageArrow = new Arrow(imageHeight, this.midpoint + imageDistance, canvas.height / 2)
+      imageArrow.drawArrow()
+    }
+  }
+  //concave mirror----------------------------------------------------------
+  function ConcaveMirror(f, x, y, a) {
+    this.focalLength = parseInt(f)
+    this.posx = x
+    this.posy = y
+    this.arrow = a
+    this.offset = 60
+    this.Radius = this.arrow.height * 1.5
+    this.radius = 15
+
+    this.drawMirror = function () {
+      c.translate(-this.offset / 2, this.Radius)
+      c.moveTo(this.posx, this.posy)
+      c.ellipse(
+        this.posx,
+        this.posy - this.Radius,
+        this.radius,
+        this.Radius,
+        0,
+        Math.PI / 2,
+        (3 * Math.PI) / 2,
+        true
+      )
+      c.lineTo(this.posx + this.offset / 2, this.posy - this.Radius * 2)
+      c.lineTo(this.posx + this.offset / 2, this.posy)
+      c.lineTo(this.posx, this.posy)
+      c.strokeStyle = 'black'
+      c.fillStyle = 'black'
+      c.fill()
+      c.stroke()
+      c.translate(this.offset / 2, 0)
+    }
+
+    this.drawFocalPoint = function () {
+      //draw focal point
+      c.beginPath()
+      c.translate(0, -this.Radius)
+      c.strokeStyle = 'black'
+      c.strokeFill = 'black'
+      c.arc(this.posx - this.focalLength, this.posy, 2.5, 0, Math.PI * 2)
+      //c.arc(this.posx+this.focalLength, this.posy, 2.5, 0, Math.PI*2); //second focal point, not needed
+      c.fill()
+    }
+
+    this.drawLines = function () {
+      // line straight to mirror through focal point------------------------------------------------------------------------
+      //horizontal line to mirror
+      c.beginPath()
+      c.strokeStyle = 'red'
+      var angle = Math.atan2(
+        a.posy - a.height - this.posy,
+        this.posx - (this.posx - this.focalLength)
+      )
+      var r = -10000
+      var x = r * Math.cos(angle)
+      var y = r * Math.sin(angle)
+      c.moveTo(a.posx, a.posy - a.height)
+      c.lineTo(this.posx, this.posy - a.height)
+      c.stroke()
+      //dashed line through focal point
+      c.beginPath()
+      c.moveTo(this.posx, this.posy - a.height)
+      c.translate(this.posx, this.posy - a.height)
+      c.lineTo(x, y)
+      c.strokeStyle = 'red'
+      c.setLineDash([5])
+      c.stroke()
+      c.setLineDash([])
+      // line to center of mirror and back------------------------------------------------------------------------------------
+      //line to center of mirror
+      c.beginPath()
+      c.strokeStyle = 'green'
+      c.translate(-this.posx, -(this.posy - a.height))
+      c.moveTo(a.posx, a.posy - a.height)
+      c.lineTo(this.posx, this.posy)
+      c.stroke()
+      //line reflected across x axis back to the left
+      c.beginPath()
+      c.moveTo(this.posx, this.posy)
+      c.translate(this.posx, this.posy)
+      var angle = Math.atan2(a.posy - a.height - this.posy, a.posx - this.posx)
+      var r = 10000
+      //var r = (1/Math.sin(angle) * (a.posx - this.posx));
+      var x = r * Math.cos(angle)
+      var y = r * Math.sin(angle)
+      //No idea why this has to be negative
+      c.lineTo(x, -y)
+      c.setLineDash([5])
+      c.stroke()
+      c.setLineDash([])
+      // Line through focal point then reflected straight back-------------------------------------------------------------------
+      //line through focal point
+      c.beginPath()
+      c.strokeStyle = 'blue'
+      c.translate(-this.posx, -this.posy)
+      c.moveTo(a.posx, a.posy - a.height)
+      c.translate(a.posx, a.posy - a.height)
+      var angle = Math.atan2(this.posy - (a.posy - a.height), this.posx - this.focalLength - a.posx)
+      var r = (1 / Math.cos(angle)) * (this.posx - a.posx)
+      var x = r * Math.cos(angle)
+      var y = r * Math.sin(angle)
+      c.lineTo(x, y)
+      c.stroke()
+      //horizontal dashed line back to the left
+      c.beginPath()
+      c.moveTo(x, y)
+      c.setLineDash([5])
+      c.lineTo(-a.posx, y)
+      c.translate(-a.posx, -(a.posy - a.height))
+      c.stroke()
+      c.setLineDash([])
+      // reset for next params
+      c.strokeStyle = 'black'
+      c.setLineDash([])
+    }
+
+    this.drawImage = function () {
+      //calculate distance
+      var objectDistance = a.posx - this.posx
+      var objectDistanceInverse = 1 / objectDistance
+      var focalLengthInverse = 1 / this.focalLength
+      var imageDistanceInverse = objectDistanceInverse + focalLengthInverse
+      var imageDistance = 1 / imageDistanceInverse
+
+      //calculate height
+      var imageHeight
+      var objectHeight = a.height
+      imageHeight = -(imageDistance * objectHeight) / objectDistance
+
+      var imageArrow = new Arrow(-imageHeight, this.posx - imageDistance, canvas.height / 2)
+      imageArrow.drawArrow()
+    }
+  }
+  //convex mirror----------------------------------------------------------
+  function ConvexMirror(f, x, y, a) {
+    this.focalLength = parseInt(f)
+    this.cof = 2 * this.focalLength //center of curvature
+    this.posx = x
+    this.posy = y
+    this.arrow = a
+    this.offset = 5
+    this.Radius = this.arrow.height * 1.5
+    if (this.Radius < 30) this.Radius = 30
+    this.radius = 20
+
+    this.drawMirror = function () {
+      c.translate(0, this.Radius)
+      c.moveTo(this.posx, this.posy)
+      c.lineTo(this.posx + this.offset / 2, this.posy)
+      c.lineTo(this.posx + this.offset / 2, this.posy - this.Radius * 2)
+      c.lineTo(this.posx, this.posy - this.Radius * 2)
+      c.moveTo(this.posx, this.posy)
+      c.ellipse(
+        this.posx,
+        this.posy - this.Radius,
+        this.radius,
+        this.Radius,
+        0,
+        Math.PI / 2,
+        (3 * Math.PI) / 2,
+        false
+      )
+      c.strokeStyle = 'black'
+      c.fillStyle = 'black'
+      c.fill()
+      c.stroke()
+      c.restore()
+    }
+
+    this.drawFocalPoint = function () {
+      //draw focal point
+      c.beginPath()
+      c.translate(0, -this.Radius)
+      c.strokeStyle = 'black'
+      c.strokeFill = 'black'
+      c.arc(this.posx + this.focalLength, this.posy, 2.5, 0, Math.PI * 2)
+      c.arc(this.posx + this.cof, this.posy, 2.5, 0, Math.PI * 2)
+      c.fill()
+    }
+
+    this.drawLines = function () {
+      //horizontal line reflected from focal point--------------------------------------------------------------------
+      //line straight across
+      c.beginPath()
+      c.strokeStyle = 'red'
+      c.moveTo(a.posx, a.posy - a.height)
+      c.lineTo(this.posx, a.posy - a.height)
+      c.stroke()
+      //dashed line to focal point
+      c.beginPath()
+      c.setLineDash([5])
+      c.moveTo(this.posx, a.posy - a.height)
+      c.lineTo(this.posx + this.focalLength, this.posy)
+      c.stroke()
+      c.setLineDash([])
+      //line drawn away from focal point
+      c.beginPath()
+      var angle = Math.atan2(
+        a.posy - a.height - this.posy,
+        this.posx - (this.posx + this.focalLength)
+      )
+      var r = 10000 //doesn't matter, just  needs to go off screen
+      var x = r * Math.cos(angle)
+      var y = r * Math.sin(angle)
+      c.moveTo(this.posx, this.posy - a.height)
+      c.translate(this.posx, this.posy - a.height)
+      c.lineTo(x, y)
+      c.stroke()
+      c.translate(-this.posx, -(this.posy - a.height))
+
+      //line to center and reflected across x-axis------------------------------------------------------------------------
+      //line to center of mirror
+      c.beginPath()
+      c.setLineDash([])
+      var angle = Math.atan2(a.posy - a.height - this.posy, a.posx - this.posx)
+      var r = (1 / Math.cos(angle)) * (this.posx - a.posx)
+      var x = r * Math.cos(angle)
+      var y = r * Math.sin(angle)
+      c.moveTo(a.posx, a.posy - a.height)
+      c.translate(a.posx, a.posy - a.height)
+      c.lineTo(x, y)
+      c.strokeStyle = 'green'
+      c.stroke()
+      c.translate(-a.posx, -(a.posy - a.height))
+      //reflected line
+      c.beginPath()
+      c.moveTo(this.posx, this.posy)
+      c.translate(this.posx, this.posy)
+      angle = -angle
+      var r = (1 / Math.cos(angle)) * this.posx
+      var x = r * Math.cos(angle)
+      var y = r * Math.sin(angle)
+      c.lineTo(-x, -y)
+      c.stroke()
+      c.translate(-this.posx, -this.posy)
+      //virtual line
+      c.beginPath()
+      c.moveTo(this.posx, this.posy)
+      c.translate(this.posx, this.posy)
+      var r = 1000
+      angle = angle + Math.PI
+      var x = r * Math.cos(angle)
+      var y = r * Math.sin(angle)
+      c.setLineDash([5])
+      c.lineTo(x, y)
+      c.stroke()
+      c.setLineDash([])
+      c.translate(-this.posx, -this.posy)
+
+      //line to cof-------------------------------------------------------------------------------
+      //line to cof from top of arrow
+      c.beginPath()
+      c.moveTo(a.posx, a.posy - a.height)
+      c.translate(a.posx, a.posy - a.height)
+      var angle = Math.atan2(a.posy - a.height - this.posy, a.posx - (this.posx + this.cof))
+      var r = (1 / Math.cos(angle)) * (a.posx - this.posx)
+      var x = r * Math.cos(angle)
+      var y = r * Math.sin(angle)
+      c.lineTo(-x, -y)
+      c.strokeStyle = 'blue'
+      c.stroke()
+      //virtual line to cof
+      c.beginPath()
+      c.moveTo(this.posx - a.posx, -y)
+      c.lineTo(this.posx + this.cof - a.posx, this.posy - (a.posy - a.height))
+      c.setLineDash([5])
+      c.strokeStyle = 'blue'
+      c.stroke()
+      c.setLineDash([])
+      //line to top left off the screen
+      c.beginPath()
+      r = 10000
+      var x = r * Math.cos(angle)
+      var y = r * Math.sin(angle)
+      c.moveTo(0, 0)
+      c.lineTo(x, y)
+      c.stroke()
+
+      // reset for next params
+      c.translate(-a.posx, -(a.posy - a.height))
+      c.strokeStyle = 'black'
+      c.setLineDash([])
+    }
+
+    this.drawImage = function () {
+      //calculate distance
+      var objectDistance = a.posx - this.posx
+      var objectDistanceInverse = 1 / objectDistance
+      var focalLengthInverse = 1 / -this.focalLength
+      var imageDistanceInverse = objectDistanceInverse + focalLengthInverse
+      var imageDistance = 1 / imageDistanceInverse
+
+      //calculate height
+      var imageHeight
+      var objectHeight = a.height
+      imageHeight = -(imageDistance * objectHeight) / objectDistance
+
+      var imageArrow = new Arrow(-imageHeight, this.posx - imageDistance, canvas.height / 2)
+      imageArrow.drawArrow()
+    }
+  }
+
+  window.onload = () => {
+    let submit = document.getElementById('btn')
+    if (submit) {
+      submit.click()
+    } else {
+      console.log('Button not found')
+    }
+  }
+</script>
