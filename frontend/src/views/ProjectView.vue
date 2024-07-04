@@ -18,6 +18,12 @@ import BaseProjectView from '@/views/projects/BaseProjectView.vue';
       sourceURL="https://github.com/ryankupk/wordle-hacks"
       routerTo="wordle"
     />
+    <ProjectItem 
+      title="Ray Tracing"
+      description="Visualization of light ray tracing for light sources simulated with various lenses and mirrors"
+      sourceURL="https://github.com/ryankupk/Ray-Tracing"
+      externalLink="/projects/RayTracing"
+    />
     <!-- <ProjectItem 
       title="Knight's Tour"
       description="Knight's Tour"

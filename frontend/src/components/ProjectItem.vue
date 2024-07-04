@@ -18,6 +18,10 @@ defineProps({
     type: String,
     required: false
   },
+  externalLink: {
+    type: String,
+    required: false
+  },
 })
 
 </script>
@@ -32,8 +36,9 @@ defineProps({
           <img src="@/assets/github-mark-white.svg" class="gh-logo">
           <a :href="sourceURL" class="blue project-link">View Source</a> <br/>
         </div>
-        {{ description }}
-        <router-link :to="{ name: `${routerTo}`}" class="blue project-link">view {{ routerTo }}</router-link>
+        {{ description }} <br/>
+        <router-link v-if="routerTo" :to="{ name: `${routerTo}`}" class="blue project-link">view {{ routerTo }}</router-link>
+        <a v-if="externalLink" :href="externalLink" class="blue project-link" rel="noopener noreferrer">view {{ title }}</a>
       </div>
     </q-expansion-item>
   </div>
