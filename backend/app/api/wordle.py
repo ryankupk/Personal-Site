@@ -14,7 +14,7 @@ def set_patterns(guess: str,
                  pattern: str,
                  correct: dict[str, int],
                  in_word: defaultdict[str, list[int]],
-                 not_in_word: dict[str, int]
+                 not_in_word: defaultdict[str, list[int]]
                  ) -> tuple[ dict[str, int], defaultdict[str, list[int]], dict[str, int] ]:
 
     for idx, _ in enumerate(guess):
@@ -24,10 +24,11 @@ def set_patterns(guess: str,
 
         # check that the letter at position[idx] is not in word
         # duplicate letters cannot be added to the list of letters not in the word if they were otherwise decided to be in the word and/or in the correct place
-        if (pattern[idx] == "!"
+        if (
+            pattern[idx] == "!"
             and guess[idx] not in correct.keys()
-            and (guess[idx] not in in_word.keys() and guess[idx] not in guess[idx+1:])):
-                not_in_word[guess[idx]] = idx
+            ):
+                not_in_word[guess[idx]].append(idx)
 
         # check if the letter is in the word and correct place
         elif pattern[idx] == ' ':
@@ -70,7 +71,7 @@ async def return_possible_words(guesses: GuessList) -> dict[str, list[str]]:
     # dictionary of letters and positions that they are known to not be in
     in_word: defaultdict[str, list[int]] = defaultdict(list)
     # list of letters that are not in the word
-    not_in_word = {}
+    not_in_word: defaultdict[str, list[int]] = defaultdict(list)
 
     # dictionary of words and their frequency in English
     word_frequency = await word_freq_collection.find({}, {'_id': False}).next() # this collection has only one document
@@ -98,7 +99,7 @@ async def return_possible_words(guesses: GuessList) -> dict[str, list[str]]:
         
         # iterate across letters that are known, and the positions that they're *not* in
         for letter, positions in in_word.items():
-            # skip word if (letter not in word) or ((letter in word) and (letter in known incorrect position))
+            # skip word if letter is not in word, or letter is in a known wrong position
             idx = word.find(letter)
             if idx == -1 or idx in positions:
                 skip_word_flag = True
@@ -106,8 +107,13 @@ async def return_possible_words(guesses: GuessList) -> dict[str, list[str]]:
         if skip_word_flag: continue
 
         # if any letters that are known to not be in the word are in the current word, skip it
-        for letter, idx in not_in_word.items():
-            if word[idx] == letter:
+        for position, letter in enumerate(word):
+            if letter not in not_in_word:
+                continue
+            if letter not in correct:
+                skip_word_flag = True
+                break
+            if position in not_in_word[letter]:
                 skip_word_flag = True
                 break
         if skip_word_flag: continue
