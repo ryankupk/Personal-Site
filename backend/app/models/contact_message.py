@@ -2,7 +2,7 @@
 from pydantic import BaseModel
 
 
-class Message(BaseModel):
+class ContactMessage(BaseModel):
     """ 
     {
         "message": "Hello, World!",

@@ -1,6 +1,6 @@
 
 from fastapi import APIRouter
-from ..models.message import Message
+from ..models.contact_message import ContactMessage
 from ..config.settings import motor_details, DISCORD_WEBHOOK_URL
 from motor.motor_asyncio import AsyncIOMotorClient
 import requests
@@ -14,7 +14,7 @@ contact_collection = db.contact_messages
 
 
 @router.post("/contact")
-async def send_message(message: Message):
+async def send_message(message: ContactMessage):
     # Insert the message into the collection asynchronously
     result = await contact_collection.insert_one(message.model_dump(exclude={"id"}))
 
