@@ -32,13 +32,14 @@ defineProps({
   <div class="container">
     <q-expansion-item :label="title" style="max-width: 100%;">
       <div class="inner-items">
+        <a v-if="externalLink" :href="externalLink" class="blue project-link" rel="noopener noreferrer">View {{ title }}</a>
+        <router-link v-if="routerTo" :to="{ name: `${routerTo}`}" class="blue project-link">View {{ routerTo }}</router-link>
+        <br/>
+        {{ description }} <br/>
         <div class="source-wrapper">
           <img src="@/assets/github-mark-white.svg" class="gh-logo">
           <a :href="sourceURL" class="blue project-link">View Source</a> <br/>
         </div>
-        {{ description }} <br/>
-        <router-link v-if="routerTo" :to="{ name: `${routerTo}`}" class="blue project-link">view {{ routerTo }}</router-link>
-        <a v-if="externalLink" :href="externalLink" class="blue project-link" rel="noopener noreferrer">view {{ title }}</a>
       </div>
     </q-expansion-item>
   </div>
@@ -48,16 +49,16 @@ defineProps({
 <style scoped>
 .container{
   width: 100%;
-  padding: 15px 5px 15px 5px;
+  margin: 15px 5px 15px 5px;
   min-width: 420px;
   max-width: 420px;
-  /* border-radius: 5%; */
-  /* border: 2px solid black; */
+  border: 1px solid #DDDDDD;
 }
 
 .inner-items {
   padding-left: 30px;
   padding-right: 30px;
+  padding-top: 8px;
   background-color: #101010;
   max-width: inherit;
 }
