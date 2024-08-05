@@ -1,6 +1,24 @@
 <script setup>
+import axios from 'axios';
+
 
 // import RollingAnimation from '../components/animations/RollingAnimation.vue'
+
+const openModal = () => {
+  const chatModal = document.getElementById("assistant-chat-modal");
+  chatModal.showModal();
+
+}
+
+const sendMessage = async () => {
+  const messageText = document.getElementById("chat-message").value
+  console.log(messageText)
+  const messageObject = {
+    "message": messageText
+  }
+  const result = await axios.post("/api/chat", messageObject)
+  console.log(result)
+}
 
 </script>
 <template>
@@ -15,8 +33,18 @@
     <a href="/projects" class="projects-link blue">Check out some projects here</a>
     <p class="about-item">When I'm not immersed in code, you can find me enjoying the outdoors with my dog, going on hikes or camping trips with friends. I'm also an avid music listener (some might say borderline addict!) and enjoy the occasional game, whether it's video games, sports, or board games. As a fan of mechanical and custom keyboards, I enjoy writing the C/QMK code for the firmware of my Sofle V2.1. I like having a variety of interests and experiences outside of work, which also helps me approach problems with fresh perspectives and creative solutions.</p>
     <p class="about-item">If you'd like to learn more about my work or discuss potential collaborations, feel free to reach out through the Contact&nbsp;section. I'm always excited to connect with others and explore new opportunities!</p>
-    <a href="/contact" class="contact-link blue">Contact me directly</a>
-
+    <div class="cta-wrapper">
+      <a href="/contact" class="contact-link blue">Contact me directly</a>
+      <a href="https://rxr.ryankupka.dev/ryankupka/resume" target="_blank" class="resume-link blue">View my resume</a>
+      <div class="chat-link blue" @click="openModal">Chat with my personal LLM assistant
+        <dialog class="modal" id="assistant-chat-modal">
+          <div class="chat-wrapper">
+            <textarea name="chat-message" id="chat-message" cols="30" rows="3"></textarea>
+            <button class="send-chat-message-button" id="send-chat-message-button" @click="sendMessage">send message</button>
+          </div>
+        </dialog>
+      </div>
+    </div>
     <!-- <RollingAnimation :attributes="[1, 2, 3]"/> -->
     
   </div>
@@ -52,10 +80,25 @@
   margin-bottom: 25px;
 }
 
-.projects-link, .contact-link {
+.projects-link, .contact-link, .resume-link, .chat-link {
   font-size: 1.1rem;
   background-color: #202020;
   border-radius: 8px;
   border: 2px solid #303030;
 }
+
+.cta-wrapper > a,div {
+  /* flex-direction: column;
+  justify-content: space-evenly; */
+  margin-right: 15px;
+}
+
+.modal {
+  z-index: 999;
+
+}
+.chat-wrapper {
+
+}
+
 </style>

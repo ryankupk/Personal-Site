@@ -12,8 +12,10 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
+    "@quasar/extras": "^1.16.12",
     "axios": "^1.6.8",
     "bourbon": "^7.3.0",
+    "quasar": "^2.16.6",
     "tippy.js": "^6.3.7",
     "vite-bundle-visualizer": "^1.1.0",
     "vue": "^3.4.25",

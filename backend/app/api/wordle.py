@@ -1,14 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from asyncpg import Connection
+from ..config.database import get_db
 from ..models.guess_list import GuessList
-from ..config.settings import motor_details
-from motor.motor_asyncio import AsyncIOMotorClient
 from collections import defaultdict
 
 router = APIRouter()
-
-client = AsyncIOMotorClient(motor_details)
-db = client.wordle
-word_freq_collection = db.word_freq
 
 def set_patterns(guess: str,
                  pattern: str,
@@ -59,7 +55,7 @@ def sort_possible_words(possible_words: list[str], word_frequency) -> list[str]:
     return return_list
 
 @router.post("/wordle")
-async def return_possible_words(guesses: GuessList) -> dict[str, list[str]]:
+async def return_possible_words(guesses: GuessList, conn: Connection = Depends(get_db)) -> dict[str, list[str]]:
     for word, pattern in guesses.guess_list.items():
         if pattern == ' ' * len(pattern):
             return { # return if the word given is indicated to be the answer
@@ -74,8 +70,15 @@ async def return_possible_words(guesses: GuessList) -> dict[str, list[str]]:
     not_in_word: defaultdict[str, list[int]] = defaultdict(list)
 
     # dictionary of words and their frequency in English
-    word_frequency = await word_freq_collection.find({}, {'_id': False}).next() # this collection has only one document
-    all_words = set(word_frequency.keys())
+    rows = await conn.fetch(
+        'SELECT * FROM words'
+    )
+    all_words = set()
+    word_frequency = {}
+    for row in rows:
+        all_words.add(row['word'])
+        word_frequency[row['word']] = row['score']
+        
     guess_set = set(guesses.guess_list.keys())
     # ensure all guesses are in the word list
     if len(guess_set.intersection(all_words)) != len(guess_set):
