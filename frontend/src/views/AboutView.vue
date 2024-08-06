@@ -35,7 +35,6 @@ const sendMessage = async () => {
     <p class="about-item">If you'd like to learn more about my work or discuss potential collaborations, feel free to reach out through the Contact&nbsp;section. I'm always excited to connect with others and explore new opportunities!</p>
     <div class="cta-wrapper">
       <a href="/contact" class="contact-link blue">Contact me directly</a>
-      <a href="https://rxr.ryankupka.dev/ryankupka/resume" target="_blank" class="resume-link blue">View my resume</a>
       <div class="chat-link blue" @click="openModal">Chat with my personal LLM assistant
         <dialog class="modal" id="assistant-chat-modal">
           <div class="chat-wrapper">
@@ -87,10 +86,10 @@ const sendMessage = async () => {
   border: 2px solid #303030;
 }
 
-.cta-wrapper > a,div {
+.cta-wrapper * {
   /* flex-direction: column;
   justify-content: space-evenly; */
-  margin-right: 15px;
+  margin-top: 15px;
 }
 
 .modal {

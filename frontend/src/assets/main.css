@@ -8,7 +8,7 @@
   font-weight: normal;
 }
 
-a.blue {
+.blue {
   text-decoration: none;
   color: rgb(57, 106, 241);
   transition: 0.4s;
@@ -16,7 +16,7 @@ a.blue {
 }
 
 @media (hover: hover) {
-  a.blue:hover {
+  .blue:hover {
     background-color: #909090;
     color: #000000;
   }
