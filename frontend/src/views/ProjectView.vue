@@ -8,7 +8,7 @@ import BaseProjectView from '@/views/projects/BaseProjectView.vue';
   <div class="projects">
     <ProjectItem 
       title="This Site!"
-      description="This site is hand-written by myself. For the moment it's closed source, but will be opened up soon."
+      description="This site is hand-written by myself. It's a Vue SPA frontend served by nginx and a Python FastAPI backend."
       sourceURL="https://github.com/ryankupk/Personal-Site"
       routerTo="home"
     />
