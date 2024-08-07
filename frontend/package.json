@@ -15,6 +15,7 @@
     "@quasar/extras": "^1.16.12",
     "axios": "^1.6.8",
     "bourbon": "^7.3.0",
+    "deep-chat": "^2.0.1",
     "quasar": "^2.16.6",
     "tippy.js": "^6.3.7",
     "vite-bundle-visualizer": "^1.1.0",
