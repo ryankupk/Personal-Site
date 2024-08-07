@@ -1,7 +1,7 @@
 
 from fastapi import APIRouter
 from ..models.contact_message import ContactMessage
-from ..config.settings import motor_details, DISCORD_WEBHOOK_URL
+from ..config.settings import motor_details, DISCORD_CONTACT_WEBHOOK_URL, DISCORD_HEADERS
 from motor.motor_asyncio import AsyncIOMotorClient
 import requests
 import json 
@@ -20,8 +20,7 @@ async def send_message(message: ContactMessage):
 
     # Send the message to Discord
     discord_message = {"content": message.model_dump_json()}
-    discord_headers = {"Content-Type": "application/json"}
-    discord_response = requests.post(DISCORD_WEBHOOK_URL, data=json.dumps(discord_message), headers=discord_headers)
+    discord_response = requests.post(DISCORD_CONTACT_WEBHOOK_URL, data=json.dumps(discord_message), headers=DISCORD_HEADERS)
 
     # Return the inserted message with its new ID
     return {"_id": str(result.inserted_id), **message.model_dump()}
