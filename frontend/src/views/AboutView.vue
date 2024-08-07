@@ -90,7 +90,7 @@ const sendMessage = async (message) => {
         :textInput="{ placeholder: { text: 'Message AI assistant' } }"
         :history="history"
         :connect="{
-          url: 'http://192.168.1.114:3001/api/chat/',
+          url: '/api/chat/',
           method: 'POST',
         }"
         :chatStyle="{
