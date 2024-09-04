@@ -19,7 +19,8 @@ async def send_message(message: ContactMessage):
     result = await contact_collection.insert_one(message.model_dump(exclude={"id"}))
 
     # Send the message to Discord
-    discord_message = {"content": message.model_dump_json()}
+    # message_dump = message.model_dump_json()
+    discord_message = {"content": f"From: {message.sender_name}\nContact information: {message.contact_info}\nMessage: ```{message.message}```"}
     discord_response = requests.post(DISCORD_CONTACT_WEBHOOK_URL, data=json.dumps(discord_message), headers=DISCORD_HEADERS)
 
     # Return the inserted message with its new ID

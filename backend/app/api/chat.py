@@ -18,9 +18,7 @@ async def send_message(request: ChatRequest):
     try:
         # Insert the message into the collection asynchronously
         message_dict = request.messages[0].dict(exclude_unset=True)
-        print(f"{message_dict=}")
-        message_dict['text'] = "Answer briefly: " + message_dict['text']
-        print(f"{message_dict=}")
+        message_dict['text'] = f"Only respond to the question between the backticks if the question is about Ryan. Respectfully decline to answer if the question is unrelated. Answer briefly. Do not make up or give inaccurate information.\n`{message_dict['text']}`"
         discord_user_message = {"content": f"User asked: {message_dict['text']}"}
         discord_response = requests.post(DISCORD_CHAT_WEBHOOK_URL, data=json.dumps(discord_user_message), headers=DISCORD_HEADERS)
         message_insert_result = await chat_collection.insert_one(message_dict)
