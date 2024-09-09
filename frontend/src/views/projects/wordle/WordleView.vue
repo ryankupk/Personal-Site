@@ -60,7 +60,7 @@ const getPossibleWords = () => {
     guess_list[words[i]] = guessPatternWords[i];
   }
 
-  axios.post('/api/wordle', {"guess_list": guess_list})
+  axios.get('/api/wordle', {"guess_list": guess_list})
   .then((response) => {
     const possible_words = response.data.possible_words;
     if (possible_words.length == 1) {

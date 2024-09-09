@@ -54,7 +54,7 @@ def sort_possible_words(possible_words: list[str], word_frequency) -> list[str]:
 
     return return_list
 
-@router.post("/wordle")
+@router.get("/wordle")
 async def return_possible_words(guesses: GuessList, conn: Connection = Depends(get_db)) -> dict[str, list[str]]:
     for word, pattern in guesses.guess_list.items():
         if pattern == ' ' * len(pattern):
