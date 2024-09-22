@@ -41,6 +41,13 @@ const getPossibleWords = () => {
   }).join('');
   const guessPatternWords = guessPattern.match(new RegExp(`.{${wordLength.value}}`, 'g'));
 
+  // Check if any word is all green
+  const allGreenWord = guessPatternWords.find(word => word === ' '.repeat(wordLength.value));
+  if (allGreenWord) {
+    possibleWords.value = ["🎉"];
+    return;
+  }
+
   const guessLetters = guessesElements.map(input => input.value.toLowerCase()); 
   let flag = true;
   for (let letter of guessLetters) {
