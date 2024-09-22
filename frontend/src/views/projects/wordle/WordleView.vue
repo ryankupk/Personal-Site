@@ -1,7 +1,7 @@
 <script setup>
 import axios from 'axios';
 import BaseProjectView from '@/views/projects/BaseProjectView.vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { nextTick } from 'vue';
 
 import { Tippy } from 'vue-tippy';
@@ -17,6 +17,32 @@ const possibleWords = ref([]);
 const colors = ref(['gray', 'yellow', 'green']);
 const colorIndices = ref(Array(maxGuesses.value).fill().map(() => Array(wordLength.value).fill(0)));
 const rowDisabled = ref(Array(maxGuesses.value).fill(true));
+
+// Load state from local storage
+const loadState = () => {
+  const savedState = localStorage.getItem('wordleHelperState');
+  if (savedState) {
+    const state = JSON.parse(savedState);
+    words.value = state.words;
+    colorIndices.value = state.colorIndices;
+    rowDisabled.value = state.rowDisabled;
+    possibleWords.value = state.possibleWords;
+  }
+}
+
+// Save state to local storage
+const saveState = () => {
+  const state = {
+    words: words.value,
+    colorIndices: colorIndices.value,
+    rowDisabled: rowDisabled.value,
+    possibleWords: possibleWords.value
+  };
+  localStorage.setItem('wordleHelperState', JSON.stringify(state));
+}
+
+// Watch for changes and save state
+watch([words, colorIndices, rowDisabled, possibleWords], saveState, { deep: true });
 
 const getPossibleWords = () => {
   possibleWords.value = ["loading..."]
@@ -174,9 +200,20 @@ const fillWord = (word) => {
   }
 }
 
-onMounted(() => {
-})
+const clearAllWords = () => {
+  words.value = Array(maxGuesses.value).fill().map(() => Array(wordLength.value).fill(''));
+  colorIndices.value = Array(maxGuesses.value).fill().map(() => Array(wordLength.value).fill(0));
+  rowDisabled.value = Array(maxGuesses.value).fill(true);
+  possibleWords.value = [];
+  localStorage.removeItem('wordleHelperState');
+}
 
+onMounted(() => {
+  loadState();
+  nextTick(() => {
+    getPossibleWords();
+  });
+})
 
 </script>
 
@@ -208,6 +245,7 @@ onMounted(() => {
           </div>
 
         </div>
+        <button @click="clearAllWords" class="clearAllButton">Clear Words</button>
       </div>
 
       <div class="centeredDiv"></div>
@@ -232,6 +270,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 $guessInputSize: 30px;
+$clearButtonWidth: 40px; // Adjust this value to match the width of your individual clear buttons
 
 .guessesContainer {
   display: flex;
@@ -353,6 +392,24 @@ $guessInputSize: 30px;
 
   &:hover {
     background-color: #5a5a5a;
+  }
+}
+
+.clearAllButton {
+  margin-top: 20px;
+  width: calc(#{$guessInputSize * 5} + #{$clearButtonWidth});
+  height: 40px;
+  padding: 0 10px;
+  background-color: #c01818; // Light red color
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 14px;
+
+  &:hover {
+    background-color: #9c1e1e; // Slightly darker on hover
   }
 }
 
