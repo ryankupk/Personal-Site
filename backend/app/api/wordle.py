@@ -3,6 +3,7 @@ from asyncpg import Connection
 from ..config.database import get_db
 from ..models.guess_list import GuessList
 from collections import defaultdict
+import heapq
 
 router = APIRouter()
 
@@ -36,29 +37,22 @@ def set_patterns(guess: str,
 
     return correct, in_word, not_in_word
         
-        
-def sort_possible_words(possible_words: list[str], word_frequency) -> list[str]:
-    # list of words to return, starting with an arbitrary word in the list of possible words
-    return_list: list[str] = [possible_words[0]]
+def add_to_heap(heap, word, score, max_size=20):
+    if len(heap) < max_size:
+        heapq.heappush(heap, (score, word))
+    elif score > heap[0][0]:
+        heapq.heapreplace(heap, (score, word))
 
-    for possible_word in possible_words[1:]:
-        for idx, return_word in enumerate(return_list):
-            # if the frequency of the current possible word is less than or equal to the frequency of the current word in the list to be returned
-            # and the current possible word is not already in the list
-            if int(word_frequency[possible_word]) >= int(word_frequency[return_word]) and possible_word not in return_list:
-                return_list.insert(idx-1 if idx > 0 else idx, possible_word)
-                break
-        # insert word into return_list only if it's not already in the list
-        else:
-            return_list.append(possible_word)
+@router.get("/wordle")
+async def return_possible_words(guess_list: str, conn: Connection = Depends(get_db)) -> dict[str, list[str]]:
+    guesses = {}
+    for guess in guess_list.split(','):
+        word, pattern = guess.split(':')
+        guesses[word] = pattern
 
-    return return_list
-
-@router.post("/wordle")
-async def return_possible_words(guesses: GuessList, conn: Connection = Depends(get_db)) -> dict[str, list[str]]:
-    for word, pattern in guesses.guess_list.items():
+    for word, pattern in guesses.items():
         if pattern == ' ' * len(pattern):
-            return { # return if the word given is indicated to be the answer
+            return {  # return if the word given is indicated to be the answer
                 "possible_words": [word]
             }
 
@@ -79,15 +73,15 @@ async def return_possible_words(guesses: GuessList, conn: Connection = Depends(g
         all_words.add(row['word'])
         word_frequency[row['word']] = row['score']
         
-    guess_set = set(guesses.guess_list.keys())
+    guess_set = set(guesses.keys())
     # ensure all guesses are in the word list
     if len(guess_set.intersection(all_words)) != len(guess_set):
         raise HTTPException(status_code=400, detail="Invalid guess")
 
-    for guess, pattern in guesses.guess_list.items():
+    for guess, pattern in guesses.items():
         correct, in_word, not_in_word = set_patterns(guess, pattern, correct, in_word, not_in_word)
 
-    possible_words: list[str] = []
+    possible_words_heap = []
     for word in all_words:
         # flag to skip the word if it doesn't meet criteria that indicate that it could be a possible solution
         skip_word_flag = False
@@ -122,11 +116,15 @@ async def return_possible_words(guesses: GuessList, conn: Connection = Depends(g
         if skip_word_flag: continue
 
         # add current word to list of possible words if it passes all above checks
-        possible_words.append(word)
+        if not skip_word_flag:
+            add_to_heap(possible_words_heap, word, int(word_frequency[word]))
 
-    if len(possible_words) == 0:
+    if len(possible_words_heap) == 0:
         raise HTTPException(status_code=400, detail="No possible words")
-    possible_words = sort_possible_words(possible_words, word_frequency)
+
+    # Extract top 20 words from the heap
+    top_words = [word for _, word in sorted(possible_words_heap, reverse=True)]
+
     return {
-        "possible_words": possible_words
-        }
+        "possible_words": top_words
+    }
