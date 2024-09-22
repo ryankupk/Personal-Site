@@ -95,6 +95,9 @@ const handleInput = async (event, wordIndex, charIndex) => {
     return;
   }
 
+  // Update color based on known information
+  updateColorBasedOnKnownInfo(wordIndex, charIndex);
+
   const nextCharIndex = charIndex + 1;
   if (nextCharIndex < words.value[wordIndex].length) {
     inputs.value[wordIndex * wordLength.value + nextCharIndex].focus();
@@ -107,6 +110,18 @@ const handleInput = async (event, wordIndex, charIndex) => {
 
   const rowFilled = words.value[wordIndex].every(char => char !== '');
   rowDisabled.value[wordIndex] = !rowFilled;
+}
+
+const updateColorBasedOnKnownInfo = (currentWordIndex, currentCharIndex) => {
+  const currentChar = words.value[currentWordIndex][currentCharIndex].toLowerCase();
+  
+  for (let i = 0; i < currentWordIndex; i++) {
+    if (words.value[i][currentCharIndex].toLowerCase() === currentChar && 
+        colorIndices.value[i][currentCharIndex] === 2) { // 2 represents green
+      colorIndices.value[currentWordIndex][currentCharIndex] = 2;
+      break;
+    }
+  }
 }
 
 const handleBackspace = (event, wordIndex, charIndex) => {
@@ -143,6 +158,7 @@ const fillWord = (word) => {
   if (nextEmptyRowIndex !== -1) {
     for (let i = 0; i < word.length; i++) {
       words.value[nextEmptyRowIndex][i] = word[i];
+      updateColorBasedOnKnownInfo(nextEmptyRowIndex, i);
     }
     rowDisabled.value[nextEmptyRowIndex] = false;
     nextTick(() => {
