@@ -21,7 +21,7 @@ const rowDisabled = ref(Array(maxGuesses.value).fill(true));
 const getPossibleWords = () => {
   possibleWords.value = ["loading..."]
 
-  const guess_list = {};
+  const guess_list = [];
   const guessesElements = Array.from(document.querySelectorAll(".guessInput"));
 
   const guessPattern = Array.from(guessesElements).map(input => {
@@ -57,10 +57,12 @@ const getPossibleWords = () => {
 
   const words = guessString.match(new RegExp(`.{${wordLength.value}}`, 'g'));
   for (let i = 0; i < words.length; ++i) {
-    guess_list[words[i]] = guessPatternWords[i];
+    guess_list.push(`${words[i]}:${guessPatternWords[i]}`);
   }
 
-  axios.get('/api/wordle', {"guess_list": guess_list})
+  const guessListParam = guess_list.join(',');
+
+  axios.get(`/api/wordle?guess_list=${encodeURIComponent(guessListParam)}`)
   .then((response) => {
     const possible_words = response.data.possible_words;
     if (possible_words.length == 1) {
@@ -70,7 +72,7 @@ const getPossibleWords = () => {
   })
   .catch((error) => {
     possibleWords.value = ["Invalid guess!"];
-    // console.error('Failed to fetch possible words: ', error);
+    console.error('Failed to fetch possible words: ', error);
   })
 }
 
@@ -136,9 +138,18 @@ const getColorClass = (wordIndex, charIndex) => {
   return colors.value[colorIndex]
 }
 
-// const fillWord = (word) => {
-//   console.log(word);
-// }
+const fillWord = (word) => {
+  const nextEmptyRowIndex = words.value.findIndex(row => row.every(char => char === ''));
+  if (nextEmptyRowIndex !== -1) {
+    for (let i = 0; i < word.length; i++) {
+      words.value[nextEmptyRowIndex][i] = word[i];
+    }
+    rowDisabled.value[nextEmptyRowIndex] = false;
+    nextTick(() => {
+      getPossibleWords();
+    });
+  }
+}
 
 onMounted(() => {
 })
@@ -181,8 +192,14 @@ onMounted(() => {
       <div class="possibleContainer">
         <h4 class="possibleHeader">Possible&nbsp;words&nbsp;<ToolTipInfo placement="top" content="Below are possible words given the parameters in the 'Guesses'.<br/><br/>They're sorted from most-likely to least-likely according to occurrence in English, however if none of the words are in the top ~300,000 most used words, then they're arbitrarily sorted.<br/><br/>The top word is not necessarily the best next guess, it's just the most likely word to be the final word. Guesses which eliminate letters may be better than going for the final word for interim guesses."/></h4>
         <div class="wordContainer">
-          <div v-for="word in possibleWords" :key="word">
-            {{ word }} <!-- <button @click="fillWord(word)">↵</button> -->
+          <div v-for="word in possibleWords" :key="word" class="wordItem">
+            <span>{{ word }}</span>
+            <button 
+              v-if="word !== 'Invalid guess!' && word !== '🎉'" 
+              @click="fillWord(word)" 
+              class="fillWordButton" 
+              title="Fill this word in the next guess"
+            >↵</button>
           </div>
         </div>
       </div>
@@ -293,4 +310,27 @@ $guessInputSize: 30px;
     display: none;
   }
 }
+
+.wordItem {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fillWordButton {
+  margin-left: 5px;
+  padding: 2px 5px;
+  font-size: 0.8em;
+  background-color: #4a4a4a;
+  color: #f8f8f8;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #5a5a5a;
+  }
+}
+
 </style>
