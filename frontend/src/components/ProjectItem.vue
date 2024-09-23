@@ -32,8 +32,8 @@ defineProps({
   <div class="container">
     <q-expansion-item :label="title" style="max-width: 100%;">
       <div class="inner-items">
-        <a v-if="externalLink" :href="externalLink" class="blue project-link" rel="noopener noreferrer">View {{ title }}</a>
-        <router-link v-if="routerTo" :to="{ name: `${routerTo}`}" class="blue project-link">View {{ routerTo }}</router-link>
+        <a v-if="externalLink" :href="externalLink" class="cta-button" rel="noopener noreferrer">View {{ title }}</a>
+        <router-link v-if="routerTo" :to="{ name: `${routerTo}`}" class="cta-button">View {{ routerTo }}</router-link>
         <br/>
         {{ description }} <br/>
         <div class="source-wrapper">
@@ -74,6 +74,22 @@ defineProps({
 
 .project-link {
   border-radius: 6px;
+}
+
+.cta-button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #3498db;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+  background-color: #2980b9;
 }
 
 /* .arrow {
