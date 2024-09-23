@@ -24,16 +24,16 @@ import ProjectItem from '@/components/ProjectItem.vue'
       routerTo="bookLibrary"
     />
     <ProjectItem 
-      title="Ray Tracing"
-      description="Visualization of light ray tracing for light sources simulated with various lenses and mirrors"
-      sourceURL="https://github.com/ryankupk/Ray-Tracing"
-      externalLink="/projects/RayTracing"
-    />
-    <ProjectItem 
       title="Knight's Tour"
       description="A knight's tour is a sequence of moves of a knight on a chessboard such that the knight visits every square exactly once"
       sourceURL="https://github.com/ryankupk/ai-knights-tour"
       externalLink="/projects/KnightsTour"
+    />
+    <ProjectItem 
+      title="Ray Tracing"
+      description="Visualization of light ray tracing for light sources simulated with various lenses and mirrors"
+      sourceURL="https://github.com/ryankupk/Ray-Tracing"
+      externalLink="/projects/RayTracing"
     />
   </div>
 </template>
