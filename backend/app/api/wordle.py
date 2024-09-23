@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from asyncpg import Connection
-from ..config.database import get_db
+from ..config.database import get_wordle_db
 from ..models.guess_list import GuessList
 from collections import defaultdict
 import heapq
@@ -47,7 +47,7 @@ def add_to_heap(heap, word, score, max_size=20):
         heapq.heapreplace(heap, (score, word))
 
 @router.get("/wordle")
-async def return_possible_words(guess_list: str, conn: Connection = Depends(get_db)) -> dict[str, list[str]]:
+async def return_possible_words(guess_list: str, conn: Connection = Depends(get_wordle_db)) -> dict[str, list[str]]:
     if not guess_list:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Empty guess list")
 

@@ -30,6 +30,12 @@ import BaseProjectView from '@/views/projects/BaseProjectView.vue';
       sourceURL="https://github.com/ryankupk/ai-knights-tour"
       externalLink="/projects/KnightsTour"
     />
+    <ProjectItem 
+      title="Personal Book Library"
+      description="A full CRUD application to manage your personal book collection. Add, edit, delete books, and view interesting statistics about your reading habits."
+      sourceURL="https://github.com/yourusername/Personal-Site/tree/main/frontend/src/views/projects/BookLibrary"
+      routerTo="bookLibrary"
+    />
   </div>
 </template>
 
