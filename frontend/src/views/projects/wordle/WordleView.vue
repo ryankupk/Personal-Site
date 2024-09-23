@@ -1,7 +1,7 @@
 <script setup>
 import axios from 'axios';
 import BaseProjectView from '@/views/projects/BaseProjectView.vue';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { nextTick } from 'vue';
 
 import { Tippy } from 'vue-tippy';
@@ -17,6 +17,8 @@ const possibleWords = ref([]);
 const colors = ref(['gray', 'yellow', 'green']);
 const colorIndices = ref(Array(maxGuesses.value).fill().map(() => Array(wordLength.value).fill(0)));
 const rowDisabled = ref(Array(maxGuesses.value).fill(true));
+
+const errorMessage = ref('');
 
 // Load state from local storage
 const loadState = () => {
@@ -45,7 +47,8 @@ const saveState = () => {
 watch([words, colorIndices, rowDisabled, possibleWords], saveState, { deep: true });
 
 const getPossibleWords = () => {
-  possibleWords.value = ["loading..."]
+  errorMessage.value = '';
+  possibleWords.value = [];
 
   const guess_list = [];
   const guessesElements = Array.from(document.querySelectorAll(".guessInput"));
@@ -96,17 +99,23 @@ const getPossibleWords = () => {
   const guessListParam = guess_list.join(',');
 
   axios.get(`/api/wordle?guess_list=${encodeURIComponent(guessListParam)}`)
-  .then((response) => {
-    const possible_words = response.data.possible_words;
-    if (possible_words.length == 1) {
-      possible_words.push("🎉")
-    }
-    possibleWords.value = response.data.possible_words;
-  })
-  .catch((error) => {
-    possibleWords.value = ["Invalid guess!"];
-    console.error('Failed to fetch possible words: ', error);
-  })
+    .then((response) => {
+      const possible_words = response.data.possible_words;
+      if (possible_words.length == 1) {
+        possible_words.push("🎉")
+      }
+      possibleWords.value = response.data.possible_words;
+    })
+    .catch((error) => {
+      console.error('Failed to fetch possible words: ', error);
+      if (error.response) {
+        errorMessage.value = error.response.data.detail || "An error occurred while fetching possible words.";
+      } else if (error.request) {
+        errorMessage.value = "No response received from the server. Please try again.";
+      } else {
+        errorMessage.value = "An unexpected error occurred. Please try again.";
+      }
+    });
 }
 
 const clearWord = async (wordIndex) => {
@@ -253,14 +262,19 @@ onMounted(() => {
       <div class="possibleContainer">
         <h4 class="possibleHeader">Possible&nbsp;words&nbsp;<ToolTipInfo placement="top" content="Below are possible words given the parameters in the 'Guesses'.<br/><br/>They're sorted from most-likely to least-likely according to occurrence in English, however if none of the words are in the top ~300,000 most used words, then they're arbitrarily sorted.<br/><br/>The top word is not necessarily the best next guess, it's just the most likely word to be the final word. Guesses which eliminate letters may be better than going for the final word for interim guesses."/></h4>
         <div class="wordContainer">
-          <div v-for="word in possibleWords" :key="word" class="wordItem">
-            <span>{{ word }}</span>
-            <button 
-              v-if="word !== 'Invalid guess!' && word !== '🎉'" 
-              @click="fillWord(word)" 
-              class="fillWordButton" 
-              title="Fill this word in the next guess"
-            >↵</button>
+          <div v-if="errorMessage" class="messageBox errorMessage">
+            {{ errorMessage }}
+          </div>
+          <div v-else-if="possibleWords.length > 0" class="wordList">
+            <div v-for="word in possibleWords" :key="word" class="wordItem">
+              <span>{{ word }}</span>
+              <button 
+                v-if="word !== 'Invalid guess!' && word !== '🎉'" 
+                @click="fillWord(word)" 
+                class="fillWordButton" 
+                title="Fill this word in the next guess"
+              >↵</button>
+            </div>
           </div>
         </div>
       </div>
@@ -325,33 +339,65 @@ $clearButtonWidth: 40px; // Adjust this value to match the width of your individ
   border-radius: 5px;
 }
 
-.wordContainer {
-  margin-top: 15px;
-  max-height: 300px;
-  min-height: 300px;
-  max-width: 300px;
-  min-width: 200px;
-  overflow-y: auto;
-  justify-content: center;
-  border: 1px solid gray;
-  border-radius: 5px;
-}
-
-.centeredDiv {
-  max-width: 15%;
-  min-width: 10%;
-}
-
 .possibleContainer {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   margin-top: 20px;
+  width: 100%;
+  max-width: 300px; // Ensure container doesn't grow too wide
 }
 
-.wordContainer > div {
+.wordContainer {
+  margin-top: 15px;
+  height: 300px;
+  width: 100%;
+  max-width: 300px;
+  overflow-y: auto;
+  overflow-x: hidden; // Prevent horizontal scrolling
+  border: 1px solid gray;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.wordList {
+  width: 100%;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.wordItem {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 0;
+  width: 100%;
+}
+
+.messageBox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: calc(100% - 20px); // Account for horizontal padding
   text-align: center;
+  padding: 20px 10px; // 20px vertical padding, 10px horizontal padding
+  box-sizing: border-box;
+  margin: auto; // Center vertically within the container
+}
+
+.errorMessage {
+  color: #c01818;
+  border: 1px solid #c01818;
+  border-radius: 5px;
+}
+
+.centeredDiv {
+  max-width: 15%;
+  min-width: 10%;
 }
 
 @media (min-width: 1024px) {
@@ -371,12 +417,6 @@ $clearButtonWidth: 40px; // Adjust this value to match the width of your individ
   .centeredDiv {
     display: none;
   }
-}
-
-.wordItem {
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .fillWordButton {
@@ -412,5 +452,4 @@ $clearButtonWidth: 40px; // Adjust this value to match the width of your individ
     background-color: #9c1e1e; // Slightly darker on hover
   }
 }
-
 </style>

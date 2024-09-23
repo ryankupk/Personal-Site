@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, status
 from asyncpg import Connection
 from ..config.database import get_db
 from ..models.guess_list import GuessList
@@ -49,17 +49,17 @@ def add_to_heap(heap, word, score, max_size=20):
 @router.get("/wordle")
 async def return_possible_words(guess_list: str, conn: Connection = Depends(get_db)) -> dict[str, list[str]]:
     if not guess_list:
-        raise HTTPException(status_code=400, detail="Empty guess list")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Empty guess list")
 
     guesses = {}
     for guess in guess_list.split(','):
         try:
             word, pattern = guess.split(':')
             if not all(c in ' _!' for c in pattern) or len(word) != len(pattern):
-                raise ValueError
+                raise ValueError(f"Invalid pattern format for guess: {guess}")
             guesses[word] = pattern
-        except ValueError:
-            raise HTTPException(status_code=400, detail=f"Invalid guess format: {guess}")
+        except ValueError as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     for word, pattern in guesses.items():
         if pattern == ' ' * len(pattern):
@@ -86,8 +86,10 @@ async def return_possible_words(guess_list: str, conn: Connection = Depends(get_
         
     guess_set = set(guesses.keys())
     # ensure all guesses are in the word list
-    if len(guess_set.intersection(all_words)) != len(guess_set):
-        raise HTTPException(status_code=400, detail="Invalid guess")
+    invalid_guesses = guess_set - all_words
+    if invalid_guesses:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, 
+                            detail=f"Invalid guesses: {', '.join(invalid_guesses)}")
 
     for guess, pattern in guesses.items():
         correct, in_word, not_in_word = set_patterns(guess, pattern, correct, in_word, not_in_word)
@@ -127,7 +129,7 @@ async def return_possible_words(guess_list: str, conn: Connection = Depends(get_
             add_to_heap(possible_words_heap, word, int(word_frequency[word]))
 
     if len(possible_words_heap) == 0:
-        raise HTTPException(status_code=400, detail="No possible words")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No possible words found")
 
     # Extract top 20 words from the heap
     top_words = [word for _, word in sorted(possible_words_heap, reverse=True)]
