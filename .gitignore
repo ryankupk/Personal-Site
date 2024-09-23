@@ -1,7 +1,15 @@
+# Environment variables
 .env*
-*.sh
-dist/
+
+# Python cache
 __pycache__/
+*.py[cod]
+
+# Shell scripts
+*.sh
+
+# Build output
+dist/
 
 # Logs
 logs
@@ -12,20 +20,26 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
+# Dependencies
+node_modules/
+
+# OS generated files
 .DS_Store
-dist
-dist-ssr
-coverage
+
+# Test coverage
+coverage/
+
+# Local files
 *.local
 
+# Cypress
 /cypress/videos/
 /cypress/screenshots/
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
@@ -33,8 +47,11 @@ coverage
 *.sw?
 *.un~
 
+# TypeScript
 *.tsbuildinfo
 
+# Custom scripts
 populatedb.py
 
+# Frontend public directory
 frontend/public/
