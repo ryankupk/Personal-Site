@@ -89,6 +89,12 @@ const deleteBook = async (bookId) => {
   }
 };
 
+const reorderBooks = ({ sourceIndex, targetIndex }) => {
+  const [movedBook] = books.value.splice(sourceIndex, 1);
+  books.value.splice(targetIndex, 0, movedBook);
+  // Optionally, you can update the order on the server here
+};
+
 onMounted(() => {
   if (isAuth.value) {
     fetchBooks();
@@ -120,6 +126,7 @@ watch(isAuth, (newValue) => {
             :books="books" 
             @select-book="selectedBook = $event"
             @delete-book="deleteBook"
+            @reorder-books="reorderBooks"
           />
           <BookForm 
             :book="selectedBook" 
