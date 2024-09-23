@@ -23,7 +23,6 @@ def set_patterns(guess: str,
     1. Green letters are marked first
     2. Yellow letters are marked left to right, not reusing letters
     3. Gray letters are marked for remaining positions
-    4. In hard mode, subsequent guesses must use all revealed information
     """
 
     letter_count = defaultdict(int)
@@ -83,7 +82,7 @@ async def return_possible_words(guess_list: str, conn: Connection = Depends(get_
     for row in rows:
         all_words.add(row['word'])
         word_frequency[row['word']] = row['score']
-        
+
     guess_set = set(guesses.keys())
     # ensure all guesses are in the word list
     invalid_guesses = guess_set - all_words
@@ -97,15 +96,16 @@ async def return_possible_words(guess_list: str, conn: Connection = Depends(get_
     possible_words_heap = []
     for word in all_words:
         skip_word_flag = False
-        letter_count = defaultdict(int)  # Define letter_count here
-        
+        letter_count = defaultdict(int)
+
         for letter, position in correct.items():
             if word[position] != letter:
                 skip_word_flag = True
                 break
             letter_count[letter] += 1
-        if skip_word_flag: continue
-        
+        if skip_word_flag:
+            continue
+
         for letter, positions in in_word.items():
             if letter not in word:
                 skip_word_flag = True
@@ -114,15 +114,18 @@ async def return_possible_words(guess_list: str, conn: Connection = Depends(get_
                 if word[pos] == letter:
                     skip_word_flag = True
                     break
-            if skip_word_flag: break
+            if skip_word_flag:
+                break
             letter_count[letter] += 1
-        if skip_word_flag: continue
+        if skip_word_flag:
+            continue
 
         for letter, positions in not_in_word.items():
             if letter in word and letter_count[letter] == 0:
                 skip_word_flag = True
                 break
-        if skip_word_flag: continue
+        if skip_word_flag:
+            continue
 
         # add current word to list of possible words if it passes all above checks
         if not skip_word_flag:

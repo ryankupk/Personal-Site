@@ -1,46 +1,41 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 import BaseProjectView from '@/views/projects/BaseProjectView.vue';
 import BookList from './components/BookList.vue';
 import BookForm from './components/BookForm.vue';
 import BookStats from './components/BookStats.vue';
-import LoginForm from './components/LoginForm.vue';
+import LoginForm from '@/components/shared/LoginForm.vue';  // Updated import
+import { login, register, logout, getToken, isAuthenticated } from '@/services/auth';
 
 const books = ref([]);
 const selectedBook = ref(null);
-const isAuthenticated = ref(false);
-const token = ref('');
 const loginError = ref('');
+const isAuth = ref(isAuthenticated());
 
-const login = async (credentials) => {
+const handleLogin = async (credentials) => {
   try {
-    const response = await axios.post('/api/login', credentials);
-    token.value = response.data.access_token;
-    localStorage.setItem('bookLibraryToken', token.value);
-    isAuthenticated.value = true;
-    loginError.value = '';
+    await login(credentials);
+    isAuth.value = true;
     await fetchBooks();
   } catch (error) {
-    console.error('Login failed:', error);
-    loginError.value = error.response?.data?.detail || 'Login failed. Please try again.';
+    loginError.value = error;
   }
 };
 
-const register = async (credentials) => {
+const handleRegister = async (credentials) => {
   try {
-    await axios.post('/api/register', credentials);
-    await login(credentials);
+    await register(credentials);
+    isAuth.value = true;
+    await fetchBooks();
   } catch (error) {
-    console.error('Registration failed:', error);
-    loginError.value = error.response?.data?.detail || 'Registration failed. Please try again.';
+    loginError.value = error;
   }
 };
 
-const logout = () => {
-  token.value = '';
-  localStorage.removeItem('bookLibraryToken');
-  isAuthenticated.value = false;
+const handleLogout = () => {
+  logout();
+  isAuth.value = false;
   books.value = [];
   selectedBook.value = null;
 };
@@ -48,7 +43,7 @@ const logout = () => {
 const fetchBooks = async () => {
   try {
     const response = await axios.get('/api/books', {
-      headers: { 'Authorization': `Bearer ${token.value}` }
+      headers: { 'Authorization': `Bearer ${getToken()}` }
     });
     books.value = response.data;
   } catch (error) {
@@ -59,21 +54,18 @@ const fetchBooks = async () => {
 const addBook = async (book) => {
   try {
     const response = await axios.post('/api/books', book, {
-      headers: { 'Authorization': `Bearer ${token.value}` }
+      headers: { 'Authorization': `Bearer ${getToken()}` }
     });
     books.value.push(response.data);
   } catch (error) {
     console.error('Error adding book:', error);
-    if (error.response) {
-      console.error('Response data:', error.response.data);
-    }
   }
 };
 
 const updateBook = async (book) => {
   try {
     const response = await axios.put(`/api/books/${book.id}`, book, {
-      headers: { 'Authorization': `Bearer ${token.value}` }
+      headers: { 'Authorization': `Bearer ${getToken()}` }
     });
     const index = books.value.findIndex(b => b.id === book.id);
     if (index !== -1) {
@@ -82,16 +74,13 @@ const updateBook = async (book) => {
     selectedBook.value = null;
   } catch (error) {
     console.error('Error updating book:', error);
-    if (error.response) {
-      console.error('Response data:', error.response.data);
-    }
   }
 };
 
 const deleteBook = async (bookId) => {
   try {
     await axios.delete(`/api/books/${bookId}`, {
-      headers: { 'Authorization': `Bearer ${token.value}` }
+      headers: { 'Authorization': `Bearer ${getToken()}` }
     });
     books.value = books.value.filter(b => b.id !== bookId);
     selectedBook.value = null;
@@ -101,10 +90,13 @@ const deleteBook = async (bookId) => {
 };
 
 onMounted(() => {
-  const savedToken = localStorage.getItem('bookLibraryToken');
-  if (savedToken) {
-    token.value = savedToken;
-    isAuthenticated.value = true;
+  if (isAuth.value) {
+    fetchBooks();
+  }
+});
+
+watch(isAuth, (newValue) => {
+  if (newValue) {
     fetchBooks();
   }
 });
@@ -114,14 +106,14 @@ onMounted(() => {
   <BaseProjectView>
     <div class="book-library">
       <h1>Personal Book Library</h1>
-      <div v-if="!isAuthenticated">
-        <LoginForm @login="login" @register="register" />
+      <div v-if="!isAuth">
+        <LoginForm @login="handleLogin" @register="handleRegister" />
         <p v-if="loginError" class="error-message">{{ loginError }}</p>
       </div>
       <div v-else>
         <div class="library-header">
           <h2>Welcome to your library</h2>
-          <button @click="logout" class="logout-button">Logout</button>
+          <button @click="handleLogout" class="logout-button">Logout</button>
         </div>
         <div class="library-content">
           <BookList 

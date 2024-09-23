@@ -1,7 +1,6 @@
 <script setup>
 // import Banner from '@/components/Banner.vue';
 import ProjectItem from '@/components/ProjectItem.vue'
-import BaseProjectView from '@/views/projects/BaseProjectView.vue';
 </script>
 
 <template>

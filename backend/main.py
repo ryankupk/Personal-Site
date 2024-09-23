@@ -5,7 +5,8 @@ from app.config.settings import wordle_db_url, books_db_url
 from app.api.contact import router as contact_router
 from app.api.wordle import router as wordle_router
 from app.api.chat import router as chat_router
-from app.api.books import router as books_router  # New import
+from app.api.books import router as books_router
+from app.api.auth import router as auth_router
 
 API_PREFIX = '/api'
 
@@ -46,7 +47,8 @@ async def shutdown_event():
 app.include_router(contact_router, prefix=API_PREFIX)
 app.include_router(wordle_router, prefix=API_PREFIX)
 app.include_router(chat_router, prefix=API_PREFIX)
-app.include_router(books_router, prefix=API_PREFIX)  # New router
+app.include_router(auth_router, prefix=API_PREFIX)
+app.include_router(books_router, prefix=API_PREFIX)
 
 @app.get("/api")
 def read_root():

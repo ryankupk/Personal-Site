@@ -4,12 +4,9 @@ from app.config.database import get_books_db
 from pydantic import BaseModel
 from typing import List, Optional
 import jwt
-from datetime import datetime, timedelta
+from app.api.auth import SECRET_KEY, ALGORITHM
 
 router = APIRouter()
-
-SECRET_KEY = "your_secret_key"  # In a real app, store this securely
-ALGORITHM = "HS256"
 
 class Book(BaseModel):
     id: Optional[int] = None
@@ -17,18 +14,7 @@ class Book(BaseModel):
     author: str
     genre: Optional[str] = None
     pages: Optional[int] = None
-    rating: Optional[float] = None  # Changed from int to float
-
-class User(BaseModel):
-    username: str
-    password: str
-
-def create_access_token(data: dict):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=30)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    rating: Optional[float] = None
 
 def get_current_user(authorization: str = Header(...)):
     try:
@@ -42,24 +28,6 @@ def get_current_user(authorization: str = Header(...)):
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
     except IndexError:
         raise HTTPException(status_code=401, detail="Invalid token format")
-
-@router.post("/register")
-async def register(user: User, db: Connection = Depends(get_books_db)):
-    query = "INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id"
-    try:
-        user_id = await db.fetchval(query, user.username, user.password)
-        return {"message": "User registered successfully", "user_id": user_id}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail="Username already exists")
-
-@router.post("/login")
-async def login(user: User, db: Connection = Depends(get_books_db)):
-    query = "SELECT id FROM users WHERE username = $1 AND password = $2"
-    user_id = await db.fetchval(query, user.username, user.password)
-    if not user_id:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-    access_token = create_access_token(data={"sub": user.username})
-    return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/books", response_model=List[Book])
 async def get_books(db: Connection = Depends(get_books_db), current_user: str = Depends(get_current_user)):
