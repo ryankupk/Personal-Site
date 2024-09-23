@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import BookLibraryView from '@/views/projects/BookLibrary/BookLibraryView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -49,7 +48,7 @@ const router = createRouter({
     {
       path: '/projects/book-library',
       name: 'bookLibrary',
-      component: BookLibraryView
+      component: () => import('@/views/projects/BookLibrary/BookLibraryView.vue')
     },
   ]
 })
