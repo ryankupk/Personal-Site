@@ -215,7 +215,14 @@
         lines.push(new Line(board, path[i].x, path[i].y));
       }
 
-      frameRate(3);
+      // Adjust frame rate based on board size
+      const frameRates = {
+        5: 4,
+        6: 5,
+        7: 6,
+        8: 8  // Faster for 8x8 board
+      };
+      frameRate(frameRates[size] || 3);
     }
 
     function draw() {
