@@ -19,6 +19,12 @@ import BaseProjectView from '@/views/projects/BaseProjectView.vue';
       routerTo="wordle"
     />
     <ProjectItem 
+      title="Personal Book Library"
+      description="A full CRUD application to manage your personal book collection. Add, edit, delete books, and view interesting statistics about your reading habits."
+      sourceURL="https://github.com/ryankupk/Personal-Site/tree/main/frontend/src/views/projects/BookLibrary"
+      routerTo="bookLibrary"
+    />
+    <ProjectItem 
       title="Ray Tracing"
       description="Visualization of light ray tracing for light sources simulated with various lenses and mirrors"
       sourceURL="https://github.com/ryankupk/Ray-Tracing"
@@ -29,12 +35,6 @@ import BaseProjectView from '@/views/projects/BaseProjectView.vue';
       description="A knight's tour is a sequence of moves of a knight on a chessboard such that the knight visits every square exactly once"
       sourceURL="https://github.com/ryankupk/ai-knights-tour"
       externalLink="/projects/KnightsTour"
-    />
-    <ProjectItem 
-      title="Personal Book Library"
-      description="A full CRUD application to manage your personal book collection. Add, edit, delete books, and view interesting statistics about your reading habits."
-      sourceURL="https://github.com/yourusername/Personal-Site/tree/main/frontend/src/views/projects/BookLibrary"
-      routerTo="bookLibrary"
     />
   </div>
 </template>
